@@ -11,16 +11,20 @@
       "destination": "/dashboard/assets/:path*"
     },
     {
+      "source": "/data/:path*",
+      "destination": "/dashboard/data/:path*"
+    },
+    {
       "source": "/favicon.ico",
       "destination": "/dashboard/favicon.ico"
     },
     {
-      "source": "/manifest.json",
-      "destination": "/dashboard/manifest.json"
-    },
-    {
       "source": "/robots.txt",
       "destination": "/dashboard/robots.txt"
+    },
+    {
+      "source": "/manifest.json",
+      "destination": "/dashboard/manifest.json"
     }
   ]
 }
