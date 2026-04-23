@@ -18,6 +18,13 @@ KEEP_METRICS = [
     "Total Meats",
 ]
 
+EXCLUDED_DESTINATION_PATTERNS = (
+    r"^Total\s+",
+    r"^Other\s+",
+)
+EXCLUDED_DESTINATION_VALUES = {
+    "All Other Countries",
+}
 # Map report columns to business metadata.
 METRIC_META_MAP = {
     "Beef & Veal Total": {
@@ -58,6 +65,20 @@ def parse_release_month(token: str) -> pd.Timestamp:
     except ValueError as exc:
         raise ValueError(
             f"Invalid release month format: {token}. Expected YYYY-MM."
+        ) from exc
+
+
+def parse_data_month(token: str) -> pd.Timestamp:
+    """
+    Parse a business data month token such as 2025-12.
+
+    The function returns the normalized first day of the month.
+    """
+    try:
+        return pd.to_datetime(token, format="%Y-%m")
+    except ValueError as exc:
+        raise ValueError(
+            f"Invalid data month format: {token}. Expected YYYY-MM."
         ) from exc
 
 
@@ -195,6 +216,10 @@ def clean_one_file(file_path: Path, release_month: str) -> pd.DataFrame:
     # Read the report table using the second row as the header row.
     df = pd.read_excel(file_path, sheet_name="Report", header=1)
     df = df.dropna(how="all").copy()
+    df.columns = [
+        re.sub(r"\s+", " ", str(col)).strip()
+        for col in df.columns
+    ]
 
     # Rename the first column to destination.
     first_col = df.columns[0]
@@ -206,6 +231,15 @@ def clean_one_file(file_path: Path, release_month: str) -> pd.DataFrame:
     # Remove empty rows and the total Australia row.
     df = df[df["destination"] != ""].copy()
     df = df[df["destination"] != "Total Aus"].copy()
+    df = df[~df["destination"].isin(EXCLUDED_DESTINATION_VALUES)].copy()
+    df = df[
+        ~df["destination"].str.contains(
+            "|".join(EXCLUDED_DESTINATION_PATTERNS),
+            case=False,
+            regex=True,
+            na=False,
+        )
+    ].copy()
 
     # Keep only the selected metric columns.
     available_metrics = [col for col in KEEP_METRICS if col in df.columns]
@@ -292,10 +326,89 @@ def build_output_file_name(
     return OUTPUT_FILE_NAME_ALL
 
 
+def deduplicate_exports_to_latest(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Keep the latest release for each export record.
+
+    A business record is identified by report_month, destination, and metric_name.
+    If the same report month appears in multiple release folders, the row from the
+    latest release month is kept.
+    """
+    deduped = df.copy()
+    deduped["release_month_ts"] = pd.to_datetime(
+        deduped["release_month"],
+        format="%Y-%m",
+        errors="coerce",
+    )
+    deduped["report_month_ts"] = pd.to_datetime(
+        deduped["report_month"],
+        errors="coerce",
+    )
+
+    deduped = deduped.sort_values(
+        ["report_month_ts", "destination", "metric_name", "release_month_ts"]
+    )
+
+    deduped = deduped.drop_duplicates(
+        subset=["report_month", "destination", "metric_name"],
+        keep="last",
+    ).copy()
+
+    deduped = deduped.drop(columns=["release_month_ts", "report_month_ts"])
+    deduped = deduped.sort_values(
+        ["report_month", "product", "destination", "metric_name"]
+    ).reset_index(drop=True)
+    return deduped
+
+
+def filter_exports_to_data_window(
+    df: pd.DataFrame,
+    start_data_month: Optional[str] = None,
+    end_data_month: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Filter cleaned export rows to the requested business data month window.
+    """
+    if start_data_month is None and end_data_month is None:
+        return df
+
+    if (start_data_month and not end_data_month) or (
+        end_data_month and not start_data_month
+    ):
+        raise ValueError(
+            "Both --start-data-month and --end-data-month must be provided together."
+        )
+
+    start_ts = parse_data_month(start_data_month)
+    end_ts = parse_data_month(end_data_month)
+
+    if start_ts > end_ts:
+        raise ValueError("Start data month must be earlier than or equal to end data month.")
+
+    filtered = df.copy()
+    filtered["report_month_ts"] = pd.to_datetime(
+        filtered["report_month"],
+        errors="coerce",
+    )
+    end_month_ts = end_ts + pd.offsets.MonthEnd(1)
+
+    filtered = filtered[
+        filtered["report_month_ts"].between(start_ts, end_month_ts)
+    ].copy()
+
+    filtered = filtered.drop(columns=["report_month_ts"])
+    filtered = filtered.sort_values(
+        ["report_month", "product", "destination", "metric_name"]
+    ).reset_index(drop=True)
+    return filtered
+
+
 def clean_exports(
     release_month: Optional[str] = None,
     start_release_month: Optional[str] = None,
     end_release_month: Optional[str] = None,
+    start_data_month: Optional[str] = None,
+    end_data_month: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     Clean export data for one release month, a release range, or all available releases.
@@ -322,6 +435,12 @@ def clean_exports(
         raise ValueError("No export files were found.")
 
     final_df = pd.concat(frames, ignore_index=True)
+    final_df = deduplicate_exports_to_latest(final_df)
+    final_df = filter_exports_to_data_window(
+        final_df,
+        start_data_month=start_data_month,
+        end_data_month=end_data_month,
+    )
 
     output_file_name = build_output_file_name(
         release_month=release_month,
