@@ -25,7 +25,6 @@ EXCLUDED_DESTINATION_PATTERNS = (
 EXCLUDED_DESTINATION_VALUES = {
     "All Other Countries",
 }
-
 # Map report columns to business metadata.
 METRIC_META_MAP = {
     "Beef & Veal Total": {
