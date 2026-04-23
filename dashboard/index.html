@@ -92,12 +92,7 @@
 
           <div class="report-stage panel" id="report-stage">
             <div class="report-stage__media">
-              <div class="report-stage__chrome">
-                <div class="report-stage__counter" id="report-counter"></div>
-                <div class="report-stage__progress">
-                  <span class="report-stage__progress-bar" id="report-progress-bar"></span>
-                </div>
-              </div>
+              <button class="report-stage__zoom" id="report-zoom" type="button">Zoom</button>
               <img id="report-image" alt="Featured report view" />
             </div>
             <div class="report-stage__content">
@@ -112,8 +107,16 @@
                   Next
                 </button>
               </div>
-              <div class="report-stage__dots" id="report-dots"></div>
               <div class="report-stage__thumbs" id="report-thumbs"></div>
+            </div>
+            <div class="report-stage__footer">
+              <div class="report-stage__meta-row">
+                <div class="report-stage__counter" id="report-counter"></div>
+                <div class="report-stage__dots" id="report-dots"></div>
+              </div>
+              <div class="report-stage__progress">
+                <span class="report-stage__progress-bar" id="report-progress-bar"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -262,5 +265,20 @@
         <a class="button button--ghost" href="#top">Back to top</a>
       </div>
     </footer>
+
+    <div class="lightbox" id="report-lightbox" aria-hidden="true">
+      <button class="lightbox__backdrop" id="lightbox-backdrop" type="button" aria-label="Close enlarged report view"></button>
+      <div class="lightbox__dialog" role="dialog" aria-modal="true" aria-label="Enlarged report image">
+        <div class="lightbox__header">
+          <div class="lightbox__title" id="lightbox-title"></div>
+          <button class="lightbox__close" id="lightbox-close" type="button" aria-label="Close enlarged report view">
+            Close
+          </button>
+        </div>
+        <div class="lightbox__body">
+          <img class="lightbox__image" id="lightbox-image" alt="Enlarged report view" />
+        </div>
+      </div>
+    </div>
   </body>
 </html>

@@ -268,6 +268,13 @@ function buildReportCarousel(payload) {
   const dotsWrap = document.getElementById("report-dots");
   const stage = document.getElementById("report-stage");
   const thumbsWrap = document.getElementById("report-thumbs");
+  const image = document.getElementById("report-image");
+  const zoomButton = document.getElementById("report-zoom");
+  const lightbox = document.getElementById("report-lightbox");
+  const lightboxImage = document.getElementById("lightbox-image");
+  const lightboxTitle = document.getElementById("lightbox-title");
+  const lightboxBackdrop = document.getElementById("lightbox-backdrop");
+  const lightboxClose = document.getElementById("lightbox-close");
   let touchStartX = null;
 
   dotsWrap.innerHTML = payload.reportSlides
@@ -342,6 +349,32 @@ function buildReportCarousel(payload) {
     }
     startReportAutoplay();
   }, { passive: true });
+
+  const openLightbox = () => {
+    const activeSlide = payload.reportSlides[state.reportIndex];
+    lightboxImage.src = activeSlide.image;
+    lightboxImage.alt = activeSlide.title;
+    lightboxTitle.textContent = activeSlide.title;
+    lightbox.classList.add("is-open");
+    lightbox.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeLightbox = () => {
+    lightbox.classList.remove("is-open");
+    lightbox.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  };
+
+  image.addEventListener("click", openLightbox);
+  zoomButton.addEventListener("click", openLightbox);
+  lightboxBackdrop.addEventListener("click", closeLightbox);
+  lightboxClose.addEventListener("click", closeLightbox);
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && lightbox.classList.contains("is-open")) {
+      closeLightbox();
+    }
+  });
 
   updateReportStage(0);
   startReportAutoplay();
