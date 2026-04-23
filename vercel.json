@@ -1,0 +1,26 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/dashboard/index.html"
+    },
+    {
+      "source": "/assets/:path*",
+      "destination": "/dashboard/assets/:path*"
+    },
+    {
+      "source": "/favicon.ico",
+      "destination": "/dashboard/favicon.ico"
+    },
+    {
+      "source": "/manifest.json",
+      "destination": "/dashboard/manifest.json"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/dashboard/robots.txt"
+    }
+  ]
+}
