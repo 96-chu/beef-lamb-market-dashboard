@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Australian Beef & Lamb Market Intelligence</title>
+    <meta
+      name="description"
+      content="A business-style static dashboard for Australian beef and lamb market analysis, including data sourcing, processing logic, and report outputs."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+    <script src="./assets/app.js" defer></script>
+  </head>
+  <body>
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="#top">
+          <span class="brand__mark"></span>
+          <span class="brand__text">Meat Market Intelligence</span>
+        </a>
+        <nav class="site-nav">
+          <a href="#overview">Overview</a>
+          <a href="#reports">Reports</a>
+          <a href="#sources">Sources</a>
+          <a href="#pipeline">Pipeline</a>
+          <a href="#controls">Controls</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero section reveal" id="overview">
+        <div class="section-shell hero__grid">
+          <div class="hero__content">
+            <div class="eyebrow">Static Market Dashboard</div>
+            <h1 id="hero-title">Australian Beef &amp; Lamb Market Intelligence</h1>
+            <p class="hero__lede" id="hero-subtitle"></p>
+            <div class="hero__meta">
+              <span class="meta-pill" id="window-pill"></span>
+              <span class="meta-pill" id="generated-pill"></span>
+              <span class="meta-pill" id="coverage-pill"></span>
+            </div>
+            <div class="hero__actions">
+              <a class="button button--primary" href="#reports">View Executive Reports</a>
+              <a class="button button--ghost" href="#pipeline">Explore Data Pipeline</a>
+            </div>
+          </div>
+
+          <aside class="hero-panel panel">
+            <div class="panel__label">Run Snapshot</div>
+            <div class="hero-panel__stats" id="hero-coverage"></div>
+            <div class="hero-panel__rail" id="hero-rail"></div>
+            <div class="hero-panel__spotlight panel" id="hero-spotlight"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section reveal">
+        <div class="section-shell">
+          <div class="section-heading">
+            <div class="eyebrow">Executive Snapshot</div>
+            <h2>Business signals at a glance</h2>
+            <p>
+              These KPI cards summarize the latest monthly export position and the latest
+              quarterly Australia production totals from the cleaned reporting window.
+            </p>
+          </div>
+          <div class="kpi-grid" id="kpi-grid"></div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="reports">
+        <div class="section-shell reports-layout">
+          <div class="section-heading reports-layout__heading">
+            <div class="eyebrow">Report Gallery</div>
+            <h2>Auto-playing report deck</h2>
+            <p>
+              The dashboard cycles through the six exported report figures, while keeping
+              direct controls for manual review.
+            </p>
+          </div>
+
+          <div class="report-stage panel" id="report-stage">
+            <div class="report-stage__media">
+              <div class="report-stage__chrome">
+                <div class="report-stage__counter" id="report-counter"></div>
+                <div class="report-stage__progress">
+                  <span class="report-stage__progress-bar" id="report-progress-bar"></span>
+                </div>
+              </div>
+              <img id="report-image" alt="Featured report view" />
+            </div>
+            <div class="report-stage__content">
+              <div class="panel__label">Featured Report</div>
+              <h3 id="report-title"></h3>
+              <p id="report-caption"></p>
+              <div class="report-stage__controls">
+                <button class="button button--ghost button--compact" id="report-prev" type="button">
+                  Previous
+                </button>
+                <button class="button button--ghost button--compact" id="report-next" type="button">
+                  Next
+                </button>
+              </div>
+              <div class="report-stage__dots" id="report-dots"></div>
+              <div class="report-stage__thumbs" id="report-thumbs"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal">
+        <div class="section-shell">
+          <div class="section-heading">
+            <div class="eyebrow">Interactive Analytics</div>
+            <h2>Interactive charts for the cleaned business window</h2>
+            <p>
+              These front-end charts consume packaged dashboard JSON and give the static site
+              a live analytical layer without relying on a Python web backend.
+            </p>
+          </div>
+
+          <div class="chart-grid">
+            <article class="panel chart-panel chart-panel--wide">
+              <div class="chart-panel__header">
+                <div>
+                  <div class="panel__label">Chart 1</div>
+                  <h3>Quarterly Australia production trend</h3>
+                </div>
+              </div>
+              <canvas id="production-trend-chart"></canvas>
+            </article>
+
+            <article class="panel chart-panel">
+              <div class="chart-panel__header">
+                <div>
+                  <div class="panel__label">Chart 2</div>
+                  <h3>Monthly export trend</h3>
+                </div>
+              </div>
+              <canvas id="exports-trend-chart"></canvas>
+            </article>
+
+            <article class="panel chart-panel">
+              <div class="chart-panel__header">
+                <div>
+                  <div class="panel__label">Chart 3</div>
+                  <h3>Quarterly export mix</h3>
+                </div>
+              </div>
+              <canvas id="mix-chart"></canvas>
+            </article>
+
+            <article class="panel chart-panel chart-panel--wide">
+              <div class="chart-panel__header">
+                <div>
+                  <div class="panel__label">Chart 4</div>
+                  <h3>Top export destinations</h3>
+                </div>
+                <div class="segmented" id="destination-toggle">
+                  <button class="segmented__button is-active" data-product="beef" type="button">
+                    Beef
+                  </button>
+                  <button class="segmented__button" data-product="lamb" type="button">
+                    Lamb
+                  </button>
+                </div>
+              </div>
+              <canvas id="destinations-chart"></canvas>
+            </article>
+
+            <article class="panel chart-panel chart-panel--wide">
+              <div class="chart-panel__header">
+                <div>
+                  <div class="panel__label">Chart 5</div>
+                  <h3>Quarterly production versus exports</h3>
+                </div>
+              </div>
+              <canvas id="comparison-chart"></canvas>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="sources">
+        <div class="section-shell">
+          <div class="section-heading">
+            <div class="eyebrow">Source Systems</div>
+            <h2>Detailed data provenance</h2>
+            <p>
+              The dashboard explains where the data came from, what each source contributes,
+              and which transformation rules were applied before any charts were built.
+            </p>
+          </div>
+          <div class="source-grid" id="source-grid"></div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="pipeline">
+        <div class="section-shell pipeline-layout">
+          <div class="section-heading pipeline-layout__heading">
+            <div class="eyebrow">Processing Blueprint</div>
+            <h2>Interactive ETL pipeline</h2>
+            <p id="pipeline-summary"></p>
+          </div>
+
+          <div class="pipeline-board panel">
+            <div class="pipeline-map" id="pipeline-map"></div>
+            <aside class="pipeline-detail" id="pipeline-detail"></aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="controls">
+        <div class="section-shell controls-layout">
+          <div class="controls-layout__column">
+            <div class="section-heading">
+              <div class="eyebrow">Quality Controls</div>
+              <h2>What keeps the reporting layer trustworthy</h2>
+              <p>
+                These rules are applied before the dashboard package is exported, so the
+                static front-end is always backed by deduplicated and scoped business data.
+              </p>
+            </div>
+            <div class="rule-list panel" id="quality-rules"></div>
+          </div>
+
+          <div class="controls-layout__column">
+            <div class="section-heading">
+              <div class="eyebrow">Output Inventory</div>
+              <h2>Final reporting artifacts</h2>
+              <p>
+                Each artifact below is part of the reporting chain, from cleaned facts to
+                summary tables and dashboard-ready assets.
+              </p>
+            </div>
+            <div class="artifact-list" id="artifact-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer reveal">
+      <div class="section-shell site-footer__inner">
+        <div>
+          <div class="eyebrow">Portfolio Delivery</div>
+          <p>
+            Static front-end prepared for GitHub Pages. Data cleaning and report packaging
+            run in Python; the published dashboard consumes exported JSON and image assets.
+          </p>
+        </div>
+        <a class="button button--ghost" href="#top">Back to top</a>
+      </div>
+    </footer>
+  </body>
+</html>
