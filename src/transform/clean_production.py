@@ -14,12 +14,12 @@ FILE_META_MAP = {
     "7215003": {
         "product": "beef",
         "metric_group": "slaughter",
-        "unit": "head",
+        "unit": "thousand_head",
     },
     "7215006": {
         "product": "lamb",
         "metric_group": "slaughter",
-        "unit": "head",
+        "unit": "thousand_head",
     },
     "7215009": {
         "product": "beef",
@@ -57,6 +57,20 @@ def parse_release_month(token: str) -> pd.Timestamp:
     except ValueError as exc:
         raise ValueError(
             f"Invalid release month format: {token}. Expected YYYY-MM."
+        ) from exc
+
+
+def parse_data_month(token: str) -> pd.Timestamp:
+    """
+    Parse a business data month token such as 2025-12.
+
+    The function returns the normalized first day of the month.
+    """
+    try:
+        return pd.to_datetime(token, format="%Y-%m")
+    except ValueError as exc:
+        raise ValueError(
+            f"Invalid data month format: {token}. Expected YYYY-MM."
         ) from exc
 
 
@@ -272,6 +286,45 @@ def deduplicate_production_to_latest(df: pd.DataFrame) -> pd.DataFrame:
     return deduped
 
 
+def filter_production_to_data_window(
+    df: pd.DataFrame,
+    start_data_month: Optional[str] = None,
+    end_data_month: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Filter production rows to the requested business data month window.
+    """
+    if start_data_month is None and end_data_month is None:
+        return df
+
+    if (start_data_month and not end_data_month) or (
+        end_data_month and not start_data_month
+    ):
+        raise ValueError(
+            "Both --start-data-month and --end-data-month must be provided together."
+        )
+
+    start_ts = parse_data_month(start_data_month)
+    end_ts = parse_data_month(end_data_month)
+
+    if start_ts > end_ts:
+        raise ValueError("Start data month must be earlier than or equal to end data month.")
+
+    filtered = df.copy()
+    filtered["date_ts"] = pd.to_datetime(filtered["date"], errors="coerce")
+    end_month_ts = end_ts + pd.offsets.MonthEnd(1)
+
+    filtered = filtered[
+        filtered["date_ts"].between(start_ts, end_month_ts)
+    ].copy()
+
+    filtered = filtered.drop(columns=["date_ts"])
+    filtered = filtered.sort_values(
+        ["date", "product", "metric_group", "state", "series_id"]
+    ).reset_index(drop=True)
+    return filtered
+
+
 def build_output_file_names(
     release_month: Optional[str] = None,
     start_release_month: Optional[str] = None,
@@ -308,6 +361,8 @@ def clean_production(
     release_month: Optional[str] = None,
     start_release_month: Optional[str] = None,
     end_release_month: Optional[str] = None,
+    start_data_month: Optional[str] = None,
+    end_data_month: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     Clean production data for one release month, a release range, or all available releases.
@@ -348,6 +403,16 @@ def clean_production(
 
     archive_df = pd.concat(frames, ignore_index=True)
     latest_df = deduplicate_production_to_latest(archive_df)
+    archive_df = filter_production_to_data_window(
+        archive_df,
+        start_data_month=start_data_month,
+        end_data_month=end_data_month,
+    )
+    latest_df = filter_production_to_data_window(
+        latest_df,
+        start_data_month=start_data_month,
+        end_data_month=end_data_month,
+    )
 
     archive_file_name, latest_file_name = build_output_file_names(
         release_month=release_month,
