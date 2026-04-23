@@ -1,0 +1,623 @@
+{
+  "meta": {
+    "project_title": "Australian Beef & Lamb Market Intelligence",
+    "subtitle": "A business-style static dashboard that explains both the market outcomes and the pipeline behind them.",
+    "generated_at_utc": "2026-04-23 09:47 UTC",
+    "data_window": {
+      "start": "2024-01",
+      "end": "2025-12",
+      "frequency": "monthly exports and quarterly production"
+    },
+    "coverage": {
+      "export_release_months": 24,
+      "production_release_folders": 7,
+      "quarters_in_scope": 8,
+      "production_states": 9,
+      "clean_export_rows": 3370,
+      "clean_production_rows": 288
+    }
+  },
+  "kpis": [
+    {
+      "label": "Latest Beef Exports",
+      "value": 144572.74,
+      "unit": "tonnes",
+      "period": "2025-12",
+      "accent": "copper"
+    },
+    {
+      "label": "Latest Lamb Exports",
+      "value": 27032.79,
+      "unit": "tonnes",
+      "period": "2025-12",
+      "accent": "moss"
+    },
+    {
+      "label": "Latest Beef Production",
+      "value": 712888.0,
+      "unit": "tonnes",
+      "period": "2025Q4",
+      "accent": "navy"
+    },
+    {
+      "label": "Latest Lamb Production",
+      "value": 136941.0,
+      "unit": "tonnes",
+      "period": "2025Q4",
+      "accent": "olive"
+    }
+  ],
+  "sources": [
+    {
+      "title": "ABS Livestock Products, Australia",
+      "type": "Quarterly production and slaughter",
+      "scope": "Production releases used: 2024-06 to 2025-12. Each workbook contains long historical quarterly series.",
+      "raw_files": [
+        "7215003.xlsx",
+        "7215006.xlsx",
+        "7215009.xlsx",
+        "7215012.xlsx"
+      ],
+      "logic": [
+        "Read the Data1 worksheet from each workbook.",
+        "Extract description, series type, and series id metadata from fixed ABS rows.",
+        "Keep only Original series to avoid mixing adjusted or trend variants.",
+        "Deduplicate overlapping releases by keeping the latest release_month for each date + series_id record.",
+        "Filter the final business window down to 2024-01 through 2025-12."
+      ],
+      "outputs": [
+        "production_clean_archive_2024_01_to_2025_12.csv",
+        "production_clean_latest_2024_01_to_2025_12.csv"
+      ]
+    },
+    {
+      "title": "DAFF Monthly 57 Destination Reports",
+      "type": "Monthly export flow",
+      "scope": "Monthly export releases used: 2024-01 through 2025-12.",
+      "raw_files": [
+        "2401_m57dest.xlsx",
+        "...",
+        "2512_m57dest.xlsx"
+      ],
+      "logic": [
+        "Read the Report worksheet and normalize destination column names.",
+        "Keep only the dashboard metrics: Beef & Veal Total, Total Lamb, Total Mutton, and Total Meats.",
+        "Exclude Total Aus and destination subtotal rows such as Total Asia or Other EU to prevent double counting.",
+        "Deduplicate overlapping release folders by keeping the latest release_month per report_month + destination + metric_name.",
+        "Aggregate monthly flows into quarterly export totals for report-ready views."
+      ],
+      "outputs": [
+        "exports_clean_2024_01_to_2025_12.csv",
+        "exports_quarterly_2024_01_to_2025_12.csv"
+      ]
+    }
+  ],
+  "pipeline": {
+    "summary": "The dashboard is driven by a repeatable ETL flow that starts from raw Excel files, standardizes market measures, removes duplicate time series, validates coverage, and packages business-ready outputs for static delivery.",
+    "nodes": [
+      {
+        "id": "raw",
+        "title": "Raw Source Intake",
+        "eyebrow": "Step 1",
+        "tech": [
+          "Excel",
+          "Folder-based release management"
+        ],
+        "input": [
+          "ABS quarterly production workbooks",
+          "DAFF monthly 57 destination reports"
+        ],
+        "logic": [
+          "Organize source files by release folder under data/raw/production and data/raw/exports.",
+          "Treat each folder as a release event rather than as final business truth."
+        ],
+        "output": [
+          "Structured raw release folders",
+          "Traceable source provenance by month"
+        ],
+        "why": "This preserves lineage and lets the pipeline compare overlapping releases safely."
+      },
+      {
+        "id": "production-clean",
+        "title": "Production Cleaning",
+        "eyebrow": "Step 2",
+        "tech": [
+          "Python",
+          "pandas"
+        ],
+        "input": [
+          "ABS Data1 sheets",
+          "Description metadata",
+          "Series ids"
+        ],
+        "logic": [
+          "Melt wide quarterly tables into long fact rows.",
+          "Parse measure, animal, and state from ABS description strings.",
+          "Keep Original series only.",
+          "Keep the latest release for each date + series_id pair.",
+          "Restrict the business window to 2024-01 through 2025-12."
+        ],
+        "output": [
+          "production_clean_archive_2024_01_to_2025_12.csv",
+          "production_clean_latest_2024_01_to_2025_12.csv"
+        ],
+        "why": "Production workbooks contain decades of repeated history, so release-aware deduplication is essential."
+      },
+      {
+        "id": "exports-clean",
+        "title": "Export Cleaning",
+        "eyebrow": "Step 3",
+        "tech": [
+          "Python",
+          "pandas",
+          "Regex normalization"
+        ],
+        "input": [
+          "DAFF monthly Report sheets"
+        ],
+        "logic": [
+          "Normalize headers and destination names.",
+          "Keep monthly flow measures for beef, lamb, mutton, and total meats.",
+          "Remove Total Aus and subtotal destinations such as Total Asia or Other Middle East.",
+          "Keep the latest release for each report_month + destination + metric_name."
+        ],
+        "output": [
+          "exports_clean_2024_01_to_2025_12.csv"
+        ],
+        "why": "Destination subtotals would otherwise inflate totals and distort ranking views."
+      },
+      {
+        "id": "aggregate",
+        "title": "Quarterly Reporting Layer",
+        "eyebrow": "Step 4",
+        "tech": [
+          "Python aggregation",
+          "Quarter period logic"
+        ],
+        "input": [
+          "Clean monthly exports",
+          "Clean latest production"
+        ],
+        "logic": [
+          "Aggregate monthly export flows into quarterly destination totals.",
+          "Merge quarterly exports with Australia-level production and slaughter signals.",
+          "Create a compact market summary table for beef and lamb."
+        ],
+        "output": [
+          "exports_quarterly_2024_01_to_2025_12.csv",
+          "market_quarterly_summary_2024_01_to_2025_12.csv"
+        ],
+        "why": "This layer powers both executive summary views and chart-ready comparisons."
+      },
+      {
+        "id": "reporting",
+        "title": "Static Report Packaging",
+        "eyebrow": "Step 5",
+        "tech": [
+          "Matplotlib",
+          "JSON export",
+          "Static dashboard assets"
+        ],
+        "input": [
+          "Processed CSV outputs",
+          "Quarterly market summary"
+        ],
+        "logic": [
+          "Render six report figures as reusable PNG assets.",
+          "Export chart series and narrative metadata into dashboard_data.json.",
+          "Load everything into a static front-end suitable for GitHub Pages."
+        ],
+        "output": [
+          "dashboard/data/dashboard_data.json",
+          "dashboard/assets/reports/*.png"
+        ],
+        "why": "The final business layer is portable, reviewable, and ready for public portfolio presentation."
+      }
+    ]
+  },
+  "analytics": {
+    "productionTrend": [
+      {
+        "label": "2024Q1",
+        "beef": 569350.0,
+        "lamb": 164775.0
+      },
+      {
+        "label": "2024Q2",
+        "beef": 648178.0,
+        "lamb": 174314.0
+      },
+      {
+        "label": "2024Q3",
+        "beef": 690694.0,
+        "lamb": 149477.0
+      },
+      {
+        "label": "2024Q4",
+        "beef": 660899.0,
+        "lamb": 141116.0
+      },
+      {
+        "label": "2025Q1",
+        "beef": 679048.0,
+        "lamb": 166794.0
+      },
+      {
+        "label": "2025Q2",
+        "beef": 717891.0,
+        "lamb": 167162.0
+      },
+      {
+        "label": "2025Q3",
+        "beef": 759270.0,
+        "lamb": 126171.0
+      },
+      {
+        "label": "2025Q4",
+        "beef": 712888.0,
+        "lamb": 136941.0
+      }
+    ],
+    "exportsTrend": [
+      {
+        "label": "2024-01",
+        "beef": 74147.39,
+        "lamb": 24244.09
+      },
+      {
+        "label": "2024-02",
+        "beef": 92134.4,
+        "lamb": 30437.06
+      },
+      {
+        "label": "2024-03",
+        "beef": 105052.85,
+        "lamb": 29974.74
+      },
+      {
+        "label": "2024-04",
+        "beef": 103394.46,
+        "lamb": 29634.01
+      },
+      {
+        "label": "2024-05",
+        "beef": 111470.43,
+        "lamb": 34241.82
+      },
+      {
+        "label": "2024-06",
+        "beef": 103610.73,
+        "lamb": 28967.39
+      },
+      {
+        "label": "2024-07",
+        "beef": 126794.9,
+        "lamb": 32012.68
+      },
+      {
+        "label": "2024-08",
+        "beef": 119289.11,
+        "lamb": 29190.82
+      },
+      {
+        "label": "2024-09",
+        "beef": 111897.16,
+        "lamb": 26353.67
+      },
+      {
+        "label": "2024-10",
+        "beef": 127345.2,
+        "lamb": 25950.01
+      },
+      {
+        "label": "2024-11",
+        "beef": 116030.35,
+        "lamb": 26529.05
+      },
+      {
+        "label": "2024-12",
+        "beef": 125441.4,
+        "lamb": 27679.39
+      },
+      {
+        "label": "2025-01",
+        "beef": 79739.17,
+        "lamb": 23586.78
+      },
+      {
+        "label": "2025-02",
+        "beef": 115637.21,
+        "lamb": 31534.38
+      },
+      {
+        "label": "2025-03",
+        "beef": 110571.36,
+        "lamb": 32689.48
+      },
+      {
+        "label": "2025-04",
+        "beef": 125100.79,
+        "lamb": 30274.89
+      },
+      {
+        "label": "2025-05",
+        "beef": 127784.81,
+        "lamb": 35896.23
+      },
+      {
+        "label": "2025-06",
+        "beef": 132777.57,
+        "lamb": 31819.45
+      },
+      {
+        "label": "2025-07",
+        "beef": 148268.18,
+        "lamb": 28968.57
+      },
+      {
+        "label": "2025-08",
+        "beef": 133050.75,
+        "lamb": 22100.98
+      },
+      {
+        "label": "2025-09",
+        "beef": 136412.56,
+        "lamb": 22991.42
+      },
+      {
+        "label": "2025-10",
+        "beef": 136972.96,
+        "lamb": 24083.61
+      },
+      {
+        "label": "2025-11",
+        "beef": 129096.32,
+        "lamb": 25745.72
+      },
+      {
+        "label": "2025-12",
+        "beef": 144572.74,
+        "lamb": 27032.79
+      }
+    ],
+    "exportMix": [
+      {
+        "label": "2024Q1",
+        "beef": 271334.63,
+        "lamb": 84655.9,
+        "mutton": 57414.33
+      },
+      {
+        "label": "2024Q2",
+        "beef": 318475.62,
+        "lamb": 92843.22,
+        "mutton": 51982.05
+      },
+      {
+        "label": "2024Q3",
+        "beef": 357981.17,
+        "lamb": 87557.17,
+        "mutton": 55786.0
+      },
+      {
+        "label": "2024Q4",
+        "beef": 368816.95,
+        "lamb": 80158.45,
+        "mutton": 79827.12
+      },
+      {
+        "label": "2025Q1",
+        "beef": 305947.74,
+        "lamb": 87810.63,
+        "mutton": 61666.44
+      },
+      {
+        "label": "2025Q2",
+        "beef": 385663.16,
+        "lamb": 97990.56,
+        "mutton": 51665.96
+      },
+      {
+        "label": "2025Q3",
+        "beef": 417731.49,
+        "lamb": 74060.97,
+        "mutton": 39000.1
+      },
+      {
+        "label": "2025Q4",
+        "beef": 410642.03,
+        "lamb": 76862.12,
+        "mutton": 58761.77
+      }
+    ],
+    "topDestinations": {
+      "beef": [
+        {
+          "destination": "USA East",
+          "tonnes": 670452.77
+        },
+        {
+          "destination": "Japan",
+          "tonnes": 504982.17
+        },
+        {
+          "destination": "China",
+          "tonnes": 466165.72
+        },
+        {
+          "destination": "South Korea",
+          "tonnes": 421894.85
+        },
+        {
+          "destination": "USA West",
+          "tonnes": 176885.65
+        },
+        {
+          "destination": "Indonesia",
+          "tonnes": 150760.53
+        },
+        {
+          "destination": "Canada East",
+          "tonnes": 71053.96
+        },
+        {
+          "destination": "Taiwan",
+          "tonnes": 65514.27
+        }
+      ],
+      "lamb": [
+        {
+          "destination": "USA East",
+          "tonnes": 136486.42
+        },
+        {
+          "destination": "China",
+          "tonnes": 116484.42
+        },
+        {
+          "destination": "Dubai",
+          "tonnes": 50754.49
+        },
+        {
+          "destination": "Papua New Guinea",
+          "tonnes": 40395.67
+        },
+        {
+          "destination": "South Korea",
+          "tonnes": 37707.58
+        },
+        {
+          "destination": "United Kingdom",
+          "tonnes": 32948.54
+        },
+        {
+          "destination": "USA West",
+          "tonnes": 32889.67
+        },
+        {
+          "destination": "Iran",
+          "tonnes": 28738.63
+        }
+      ]
+    },
+    "productionVsExports": [
+      {
+        "label": "2024Q1",
+        "beef_production": 569350.0,
+        "beef_exports": 271334.63,
+        "lamb_production": 164775.0,
+        "lamb_exports": 84655.9
+      },
+      {
+        "label": "2024Q2",
+        "beef_production": 648178.0,
+        "beef_exports": 318475.62,
+        "lamb_production": 174314.0,
+        "lamb_exports": 92843.22
+      },
+      {
+        "label": "2024Q3",
+        "beef_production": 690694.0,
+        "beef_exports": 357981.17,
+        "lamb_production": 149477.0,
+        "lamb_exports": 87557.17
+      },
+      {
+        "label": "2024Q4",
+        "beef_production": 660899.0,
+        "beef_exports": 368816.95,
+        "lamb_production": 141116.0,
+        "lamb_exports": 80158.45
+      },
+      {
+        "label": "2025Q1",
+        "beef_production": 679048.0,
+        "beef_exports": 305947.74,
+        "lamb_production": 166794.0,
+        "lamb_exports": 87810.63
+      },
+      {
+        "label": "2025Q2",
+        "beef_production": 717891.0,
+        "beef_exports": 385663.16,
+        "lamb_production": 167162.0,
+        "lamb_exports": 97990.56
+      },
+      {
+        "label": "2025Q3",
+        "beef_production": 759270.0,
+        "beef_exports": 417731.49,
+        "lamb_production": 126171.0,
+        "lamb_exports": 74060.97
+      },
+      {
+        "label": "2025Q4",
+        "beef_production": 712888.0,
+        "beef_exports": 410642.03,
+        "lamb_production": 136941.0,
+        "lamb_exports": 76862.12
+      }
+    ]
+  },
+  "reportSlides": [
+    {
+      "title": "Executive KPI Snapshot",
+      "caption": "Latest monthly exports and latest quarterly production metrics for beef and lamb.",
+      "image": "assets/reports/chart_01_kpi_cards.png"
+    },
+    {
+      "title": "Quarterly Production Trend",
+      "caption": "Australia-level production shows beef scale versus lamb seasonality across eight quarters.",
+      "image": "assets/reports/chart_02_production_trend.png"
+    },
+    {
+      "title": "Monthly Export Trend",
+      "caption": "Monthly export flows show a stronger beef volume profile with a visible reset in early 2025.",
+      "image": "assets/reports/chart_03_exports_trend.png"
+    },
+    {
+      "title": "Quarterly Product Mix",
+      "caption": "Quarterly export mix highlights the dominance of beef and the steady role of lamb and mutton.",
+      "image": "assets/reports/chart_04_export_product_mix.png"
+    },
+    {
+      "title": "Destination Ranking",
+      "caption": "Destination rankings isolate final markets rather than subtotal regions to preserve analytical integrity.",
+      "image": "assets/reports/chart_05_top_destinations.png"
+    },
+    {
+      "title": "Production vs Exports",
+      "caption": "Quarterly production and export totals can be compared side by side for each product line.",
+      "image": "assets/reports/chart_06_production_vs_exports.png"
+    }
+  ],
+  "artifacts": [
+    {
+      "label": "Production Latest",
+      "path": "data/processed/production_clean_latest_2024_01_to_2025_12.csv",
+      "description": "Deduplicated ABS quarterly facts within the target business window."
+    },
+    {
+      "label": "Exports Clean",
+      "path": "data/processed/exports_clean_2024_01_to_2025_12.csv",
+      "description": "Monthly destination-level export facts with subtotal rows removed."
+    },
+    {
+      "label": "Exports Quarterly",
+      "path": "data/processed/exports_quarterly_2024_01_to_2025_12.csv",
+      "description": "Quarterly destination-level export totals with completeness flags."
+    },
+    {
+      "label": "Market Summary",
+      "path": "data/processed/market_quarterly_summary_2024_01_to_2025_12.csv",
+      "description": "Executive comparison layer for quarterly exports, production, and slaughter."
+    }
+  ],
+  "qualityRules": [
+    "Keep only ABS Original series and DAFF monthly_flow exports.",
+    "Deduplicate production by date + series_id using the latest release month.",
+    "Deduplicate exports by report_month + destination + metric_name using the latest release month.",
+    "Exclude subtotal destinations such as Total Asia, Other EU, and All Other Countries.",
+    "Limit the business reporting window to 2024-01 through 2025-12 after deduplication."
+  ]
+}
