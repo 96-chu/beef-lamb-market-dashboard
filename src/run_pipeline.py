@@ -8,22 +8,46 @@ def main() -> None:
     """
     Run the data cleaning pipeline.
 
-    If a month is provided, only that month folder is processed.
-    If no month is provided, all month folders are processed.
+    Supported modes:
+    1. Single release month
+    2. Release month range
+    3. All available release folders
     """
     parser = argparse.ArgumentParser(
         description="Run the data cleaning pipeline for production and export data."
     )
+
     parser.add_argument(
-        "--month",
+        "--release-month",
         type=str,
         default=None,
-        help="Month folder to process, for example 2025-12",
+        help="Single release month to process, for example 2025-12",
     )
+    parser.add_argument(
+        "--start-release-month",
+        type=str,
+        default=None,
+        help="Start release month for a range, for example 2025-07",
+    )
+    parser.add_argument(
+        "--end-release-month",
+        type=str,
+        default=None,
+        help="End release month for a range, for example 2025-12",
+    )
+
     args = parser.parse_args()
 
-    clean_production(month=args.month)
-    clean_exports(month=args.month)
+    clean_production(
+        release_month=args.release_month,
+        start_release_month=args.start_release_month,
+        end_release_month=args.end_release_month,
+    )
+    clean_exports(
+        release_month=args.release_month,
+        start_release_month=args.start_release_month,
+        end_release_month=args.end_release_month,
+    )
 
 
 if __name__ == "__main__":
