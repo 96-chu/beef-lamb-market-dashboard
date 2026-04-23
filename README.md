@@ -7,6 +7,10 @@ The current reporting window focuses on `2024-01` to `2025-12`:
 - production is quarterly ABS livestock production and slaughter
 - the dashboard packages both the market outputs and the ETL logic behind them
 
+## Live Demo
+
+Visit the dashboard here: [https://beef-lamb-market-dashboard.vercel.app/](https://beef-lamb-market-dashboard.vercel.app/)
+
 ## What This Project Does
 
 This repository currently supports four layers of work:
