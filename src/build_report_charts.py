@@ -84,6 +84,17 @@ def save_figure(fig: plt.Figure, output_dir: Path, file_name: str) -> None:
     print(f"Saved chart to: {output_path}")
 
 
+def build_month_window_label(exports_clean: pd.DataFrame) -> str:
+    report_months = pd.to_datetime(exports_clean["report_month"], errors="coerce").dropna()
+    if report_months.empty:
+        return "the selected reporting window"
+
+    return (
+        f"{report_months.min().strftime('%Y-%m')} to "
+        f"{report_months.max().strftime('%Y-%m')}"
+    )
+
+
 def load_inputs(
     release_month: Optional[str] = None,
     start_release_month: Optional[str] = None,
@@ -143,6 +154,7 @@ def chart_kpi_cards(
     exports_clean: pd.DataFrame,
     production: pd.DataFrame,
 ) -> None:
+    month_window_label = build_month_window_label(exports_clean)
     export_totals = (
         exports_clean[exports_clean["product"].isin(["beef", "lamb"])]
         .groupby(["report_month", "product"], as_index=False)["tonnes"]
@@ -211,7 +223,10 @@ def chart_kpi_cards(
     ax.text(
         0.02,
         0.88,
-        "Latest monthly exports and latest quarterly production from the cleaned 2024-01 to 2025-12 window.",
+        (
+            "Latest monthly exports and latest quarterly production from the "
+            f"cleaned {month_window_label} window."
+        ),
         fontsize=11,
         color="#444444",
         ha="left",
@@ -351,6 +366,7 @@ def chart_export_mix(output_dir: Path, exports_quarterly: pd.DataFrame) -> None:
 
 
 def chart_top_destinations(output_dir: Path, exports_clean: pd.DataFrame) -> None:
+    month_window_label = build_month_window_label(exports_clean)
     totals = (
         exports_clean[exports_clean["product"].isin(["beef", "lamb"])]
         .groupby(["destination", "product"], as_index=False)["tonnes"]
@@ -379,7 +395,7 @@ def chart_top_destinations(output_dir: Path, exports_clean: pd.DataFrame) -> Non
     axes[1].set_xlabel("Tonnes")
 
     fig.suptitle(
-        "Top Export Destinations Across 2024-01 to 2025-12",
+        f"Top Export Destinations Across {month_window_label}",
         fontsize=16,
         fontweight="bold",
     )
