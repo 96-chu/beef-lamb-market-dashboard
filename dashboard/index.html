@@ -31,6 +31,7 @@
         <nav class="site-nav">
           <a href="#overview">Overview</a>
           <a href="#reports">Reports</a>
+          <a href="#business-report">Outlook</a>
           <a href="#sources">Sources</a>
           <a href="#pipeline">Pipeline</a>
           <a href="#controls">Controls</a>
@@ -122,6 +123,69 @@
         </div>
       </section>
 
+      <section class="section reveal" id="business-report">
+        <div class="section-shell">
+          <div class="section-heading">
+            <div class="eyebrow">Commercial Report</div>
+            <h2>Executive outlook and forecast scenarios</h2>
+            <p id="business-report-subtitle"></p>
+          </div>
+
+          <div class="business-report-grid">
+            <article class="panel report-summary-panel">
+              <div class="panel__label">Executive Summary</div>
+              <h3 id="business-report-title"></h3>
+              <ul class="report-bullet-list" id="business-summary"></ul>
+            </article>
+
+            <article class="panel forecast-panel">
+              <div class="forecast-panel__header">
+                <div>
+                  <div class="panel__label">Forecast</div>
+                  <h3 id="forecast-title"></h3>
+                </div>
+                <div class="forecast-model-pill" id="forecast-model"></div>
+              </div>
+              <div class="forecast-card-grid" id="forecast-cards"></div>
+              <div class="forecast-chart-wrap">
+                <canvas id="forecast-scenario-chart"></canvas>
+              </div>
+              <div class="scenario-table-wrap">
+                <table class="scenario-table" id="forecast-scenario-table"></table>
+              </div>
+              <p class="forecast-note" id="forecast-method-note"></p>
+            </article>
+          </div>
+
+          <div class="section-subheading">
+            <div>
+              <div class="eyebrow">Business Signals</div>
+              <h3>Market insights converted into decisions</h3>
+            </div>
+          </div>
+          <div class="insight-grid" id="business-insight-grid"></div>
+
+          <div class="section-subheading">
+            <div>
+              <div class="eyebrow">Operating Context</div>
+              <h3>Environmental, supply-chain, and market impact matrix</h3>
+            </div>
+          </div>
+          <div class="impact-grid" id="impact-grid"></div>
+
+          <div class="recommendation-layout">
+            <article class="panel">
+              <div class="panel__label">Strategic Actions</div>
+              <ul class="report-bullet-list" id="recommendation-list"></ul>
+            </article>
+            <article class="panel">
+              <div class="panel__label">Model Boundaries</div>
+              <ul class="report-bullet-list" id="forecast-limitations"></ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section class="section reveal">
         <div class="section-shell">
           <div class="section-heading">
@@ -140,6 +204,17 @@
                   <div class="panel__label">Chart 1</div>
                   <h3>Quarterly Australia production trend</h3>
                 </div>
+                <div class="segmented chart-series-toggle" id="production-toggle" data-chart="production">
+                  <button class="segmented__button is-active" data-series="both" type="button">
+                    Both
+                  </button>
+                  <button class="segmented__button" data-series="beef" type="button">
+                    Beef
+                  </button>
+                  <button class="segmented__button" data-series="lamb" type="button">
+                    Lamb
+                  </button>
+                </div>
               </div>
               <canvas id="production-trend-chart"></canvas>
             </article>
@@ -149,6 +224,17 @@
                 <div>
                   <div class="panel__label">Chart 2</div>
                   <h3>Monthly export trend</h3>
+                </div>
+                <div class="segmented chart-series-toggle" id="exports-toggle" data-chart="exports">
+                  <button class="segmented__button is-active" data-series="both" type="button">
+                    Both
+                  </button>
+                  <button class="segmented__button" data-series="beef" type="button">
+                    Beef
+                  </button>
+                  <button class="segmented__button" data-series="lamb" type="button">
+                    Lamb
+                  </button>
                 </div>
               </div>
               <canvas id="exports-trend-chart"></canvas>

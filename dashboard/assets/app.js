@@ -22,6 +22,35 @@ const COLORS = {
   grid: "rgba(255,255,255,0.12)",
 }
 
+const MARKET_META = [
+  { match: ["USA East"], label: "USA East", code: "US" },
+  { match: ["USA West"], label: "USA West", code: "US" },
+  { match: ["Canada East"], label: "Canada East", code: "CA" },
+  { match: ["Canada West"], label: "Canada West", code: "CA" },
+  { match: ["United Kingdom"], label: "United Kingdom", code: "UK" },
+  { match: ["South Korea"], label: "South Korea", code: "KR" },
+  { match: ["Papua New Guinea"], label: "Papua New Guinea", code: "PG" },
+  { match: ["Saudi Arabia"], label: "Saudi Arabia", code: "SA" },
+  { match: ["New Zealand"], label: "New Zealand", code: "NZ" },
+  { match: ["South Africa"], label: "South Africa", code: "ZA" },
+  { match: ["Pacific Islands"], label: "Pacific Islands", code: "PI" },
+  { match: ["Philippines"], label: "Philippines", code: "PH" },
+  { match: ["Indonesia"], label: "Indonesia", code: "ID" },
+  { match: ["Thailand"], label: "Thailand", code: "TH" },
+  { match: ["Malaysia"], label: "Malaysia", code: "MY" },
+  { match: ["Singapore"], label: "Singapore", code: "SG" },
+  { match: ["Hong Kong"], label: "Hong Kong", code: "HK" },
+  { match: ["Taiwan"], label: "Taiwan", code: "TW" },
+  { match: ["China"], label: "China", code: "CN" },
+  { match: ["Japan"], label: "Japan", code: "JP" },
+  { match: ["Dubai"], label: "Dubai", code: "AE" },
+  { match: ["Qatar"], label: "Qatar", code: "QA" },
+  { match: ["Kuwait"], label: "Kuwait", code: "KW" },
+  { match: ["Jordan"], label: "Jordan", code: "JO" },
+  { match: ["Iran"], label: "Iran", code: "IR" },
+  { match: ["Bahrain"], label: "Bahrain", code: "BH" },
+]
+
 function safeNumber(value) {
   return value == null ? 0 : value
 }
@@ -30,6 +59,77 @@ function formatValue(value) {
   return new Intl.NumberFormat("en-AU", {
     maximumFractionDigits: value >= 1000 ? 0 : 2,
   }).format(value)
+}
+
+function formatUnitValue(value, unit) {
+  if (value == null || Number.isNaN(Number(value))) {
+    return "n/a"
+  }
+  if (unit === "percent") {
+    return `${Number(value).toFixed(1)}%`
+  }
+  if (unit === "percentage_points") {
+    return `${Number(value).toFixed(1)} pts`
+  }
+  if (unit === "tonnes") {
+    return `${formatValue(Number(value))} tonnes`
+  }
+  return formatValue(Number(value))
+}
+
+function formatShortTonnes(value) {
+  if (value == null || Number.isNaN(Number(value))) {
+    return "n/a"
+  }
+  return formatValue(Number(value))
+}
+
+function getDirectionMeta(direction) {
+  const labels = {
+    strong_growth: "Strong growth",
+    growth: "Growth",
+    rising: "Rising",
+    high_concentration: "High concentration",
+    balanced: "Balanced",
+    stable: "Stable",
+    decline: "Decline",
+    strong_decline: "Strong decline",
+    falling: "Falling",
+    not_available: "Not available",
+  }
+  const positive = ["strong_growth", "growth", "rising"]
+  const negative = ["strong_decline", "decline", "falling"]
+  const risk = ["high_concentration"]
+  const neutral = ["balanced", "stable"]
+
+  if (positive.includes(direction)) {
+    return { label: labels[direction], icon: "↑", tone: "positive" }
+  }
+  if (negative.includes(direction)) {
+    return { label: labels[direction], icon: "↓", tone: "negative" }
+  }
+  if (risk.includes(direction)) {
+    return { label: labels[direction], icon: "!", tone: "risk" }
+  }
+  if (neutral.includes(direction)) {
+    return { label: labels[direction], icon: "•", tone: "neutral" }
+  }
+  return { label: labels[direction] || direction.replace(/_/g, " "), icon: "•", tone: "neutral" }
+}
+
+function getMarketMeta(item) {
+  if (!item.title.includes("Destination")) {
+    return null
+  }
+
+  if (item.title.includes("Destination concentration")) {
+    return { label: "Top 4 markets", code: "T4" }
+  }
+
+  const source = `${item.businessSignal} ${item.narrative}`
+  return MARKET_META.find((market) =>
+    market.match.some((token) => source.includes(token))
+  ) || null
 }
 
 function buildOverview(payload) {
@@ -380,13 +480,197 @@ function buildReportCarousel(payload) {
   startReportAutoplay()
 }
 
+function buildBusinessReport(payload) {
+  const report = payload.businessReport
+  if (!report) {
+    return
+  }
+
+  document.getElementById("business-report-title").textContent = report.title
+  document.getElementById("business-report-subtitle").textContent = report.subtitle
+  document.getElementById("forecast-title").textContent = `${report.forecast.year} baseline outlook`
+  document.getElementById("forecast-model").textContent = report.forecast.model
+  document.getElementById("forecast-method-note").textContent = report.forecast.methodNote
+
+  document.getElementById("business-summary").innerHTML = report.executiveSummary
+    .map((point) => `<li>${point}</li>`)
+    .join("")
+
+  document.getElementById("forecast-cards").innerHTML = report.forecast.annualBaseCards
+    .map(
+      (item) => `
+        <div class="forecast-metric forecast-metric--${item.product}">
+          <span class="forecast-metric__label">${item.label}</span>
+          <span class="forecast-metric__value">${item.valueLabel}</span>
+          <span class="forecast-metric__period">${item.period} | base case</span>
+        </div>
+      `
+    )
+    .join("")
+
+  document.getElementById("business-insight-grid").innerHTML = report.keyFindings
+    .map((item) => {
+      const direction = getDirectionMeta(item.direction)
+      const market = getMarketMeta(item)
+      return `
+        <article class="insight-card ${market ? "insight-card--market" : ""} insight-card--${direction.tone} insight-card--${item.direction}">
+          ${
+            market
+              ? `<div class="market-watermark" aria-hidden="true">${market.code}</div>`
+              : ""
+          }
+          <div class="insight-card__topline">
+            <span class="panel__label">${item.category}</span>
+            <span class="direction-pill direction-pill--${direction.tone}">
+              <span class="direction-pill__icon">${direction.icon}</span>
+              <span>${direction.label}</span>
+            </span>
+          </div>
+          ${
+            market
+              ? `<div class="market-badge">
+                  <span class="market-badge__icon">${market.code}</span>
+                  <span class="market-badge__text">${market.label}</span>
+                </div>`
+              : ""
+          }
+          <h3>${item.title}</h3>
+          <div class="insight-card__metric">
+            <span>${item.valueLabel}</span>
+            ${
+              item.changeLabel && item.changeLabel !== "not available"
+                ? `<small>${item.changeLabel}</small>`
+                : ""
+            }
+          </div>
+          <p>${item.narrative}</p>
+          <div class="insight-card__action">${item.recommendation}</div>
+        </article>
+      `
+    })
+    .join("")
+
+  const scenarioRows = report.forecast.scenarioSummary
+  document.getElementById("forecast-scenario-table").innerHTML = `
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Conservative exports</th>
+        <th>Base exports</th>
+        <th>High exports</th>
+        <th>Base export share</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${scenarioRows
+        .map(
+          (item) => `
+            <tr>
+              <td>${item.label}</td>
+              <td>${formatUnitValue(item.exports.conservative, "tonnes")}</td>
+              <td>${formatUnitValue(item.exports.base, "tonnes")}</td>
+              <td>${formatUnitValue(item.exports.high, "tonnes")}</td>
+              <td>${formatUnitValue(item.exportShare.base, "percent")}</td>
+            </tr>
+          `
+        )
+        .join("")}
+    </tbody>
+  `
+
+  const forecastCanvas = document.getElementById("forecast-scenario-chart")
+  state.charts.forecast = new Chart(forecastCanvas, {
+    type: "bar",
+    data: {
+      labels: scenarioRows.map((item) => item.label),
+      datasets: [
+        {
+          label: "Conservative",
+          data: scenarioRows.map((item) => item.exports.conservative),
+          backgroundColor: "rgba(215, 200, 173, 0.58)",
+          borderRadius: 8,
+        },
+        {
+          label: "Base",
+          data: scenarioRows.map((item) => item.exports.base),
+          backgroundColor: COLORS.beef,
+          borderRadius: 8,
+        },
+        {
+          label: "High",
+          data: scenarioRows.map((item) => item.exports.high),
+          backgroundColor: COLORS.lamb,
+          borderRadius: 8,
+        },
+      ],
+    },
+    options: {
+      ...chartBaseOptions(),
+      plugins: {
+        ...chartBaseOptions().plugins,
+        tooltip: {
+          ...chartBaseOptions().plugins.tooltip,
+          callbacks: {
+            label(context) {
+              return `${context.dataset.label}: ${formatShortTonnes(context.raw)} tonnes`
+            },
+          },
+        },
+      },
+    },
+  })
+
+  document.getElementById("impact-grid").innerHTML = report.impactFactors
+    .map(
+      (item) => `
+        <article class="impact-card">
+          <div class="panel__label">${item.pressure}</div>
+          <h3>${item.factor}</h3>
+          <p>${item.businessImpact}</p>
+          <div class="impact-card__forecast">${item.forecastUse}</div>
+          <div class="watch-list">
+            ${item.watchMetrics.map((metric) => `<span>${metric}</span>`).join("")}
+          </div>
+        </article>
+      `
+    )
+    .join("")
+
+  document.getElementById("recommendation-list").innerHTML = report.recommendations
+    .map((point) => `<li>${point}</li>`)
+    .join("")
+
+  document.getElementById("forecast-limitations").innerHTML = report.limitations
+    .map((point) => `<li>${point}</li>`)
+    .join("")
+}
+
 function chartBaseOptions() {
   return {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      mode: "index",
+      intersect: false,
+      axis: "x",
+    },
+    hover: {
+      mode: "index",
+      intersect: false,
+    },
+    events: ["mousemove", "mouseout", "click", "touchstart", "touchmove"],
     animation: {
       duration: 900,
       easing: "easeOutCubic",
+    },
+    elements: {
+      point: {
+        hoverRadius: 7,
+        hitRadius: 18,
+      },
+      line: {
+        borderWidth: 2.5,
+      },
     },
     plugins: {
       legend: {
@@ -404,6 +688,19 @@ function chartBaseOptions() {
         borderColor: "rgba(255,255,255,0.08)",
         borderWidth: 1,
         padding: 12,
+        callbacks: {
+          label(context) {
+            let value = context.raw
+            if (context.chart && context.chart.options.indexAxis === "y" && context.parsed && context.parsed.x != null) {
+              value = context.parsed.x
+            } else if (context.parsed && context.parsed.y != null) {
+              value = context.parsed.y
+            } else if (context.parsed && context.parsed.x != null) {
+              value = context.parsed.x
+            }
+            return `${context.dataset.label}: ${formatShortTonnes(value)} tonnes`
+          },
+        },
       },
     },
     scales: {
@@ -439,6 +736,8 @@ function buildCharts(payload) {
             borderColor: COLORS.beef,
             backgroundColor: "rgba(181, 97, 68, 0.16)",
             pointRadius: 4,
+            pointHoverRadius: 7,
+            pointHitRadius: 18,
             tension: 0.28,
           },
           {
@@ -447,6 +746,8 @@ function buildCharts(payload) {
             borderColor: COLORS.lamb,
             backgroundColor: "rgba(124, 154, 87, 0.16)",
             pointRadius: 4,
+            pointHoverRadius: 7,
+            pointHitRadius: 18,
             tension: 0.28,
           },
         ],
@@ -467,6 +768,8 @@ function buildCharts(payload) {
           borderColor: COLORS.beef,
           backgroundColor: "rgba(181, 97, 68, 0.14)",
           pointRadius: 3,
+          pointHoverRadius: 7,
+          pointHitRadius: 18,
           tension: 0.24,
         },
         {
@@ -475,6 +778,8 @@ function buildCharts(payload) {
           borderColor: COLORS.lamb,
           backgroundColor: "rgba(124, 154, 87, 0.14)",
           pointRadius: 3,
+          pointHoverRadius: 7,
+          pointHitRadius: 18,
           tension: 0.24,
         },
       ],
@@ -531,9 +836,43 @@ function buildCharts(payload) {
       options: {
         ...chartBaseOptions(),
         indexAxis: "y",
+        interaction: {
+          mode: "index",
+          intersect: false,
+          axis: "y",
+        },
+        hover: {
+          mode: "index",
+          intersect: false,
+          axis: "y",
+        },
         plugins: {
           ...chartBaseOptions().plugins,
           legend: { display: false },
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: COLORS.muted,
+              callback(value) {
+                return formatValue(value)
+              },
+            },
+            grid: { color: "rgba(255,255,255,0.04)" },
+          },
+          y: {
+            type: "category",
+            ticks: {
+              color: COLORS.muted,
+              autoSkip: false,
+              callback(value) {
+                const destinationChart = state.charts.destinations
+                const labels = destinationChart ? destinationChart.data.labels : []
+                return labels[value] || this.getLabelForValue(value)
+              },
+            },
+            grid: { color: COLORS.grid },
+          },
         },
       },
     }
@@ -579,9 +918,12 @@ function buildCharts(payload) {
 function updateDestinationChart(product) {
   const chart = state.charts.destinations
   const data = state.payload.analytics.topDestinations[product]
-  chart.data.labels = data.map((item) => item.destination)
+  const labels = data.map((item) => item.destination)
+  chart.data.labels = labels
   chart.data.datasets[0].data = data.map((item) => item.tonnes)
   chart.data.datasets[0].backgroundColor = product === "beef" ? COLORS.beef : COLORS.lamb
+  chart.options.scales.y.ticks.callback = (value, index) =>
+    labels[value] || labels[index] || ""
   chart.update()
 }
 
@@ -593,6 +935,32 @@ function buildDestinationToggle() {
       button.classList.add("is-active")
       state.destinationProduct = button.dataset.product
       updateDestinationChart(state.destinationProduct)
+    })
+  })
+}
+
+function updateSeriesFilter(chartKey, series) {
+  const chart = state.charts[chartKey]
+  if (!chart) {
+    return
+  }
+
+  chart.data.datasets.forEach((dataset, index) => {
+    const datasetKey = dataset.label.toLowerCase()
+    chart.setDatasetVisibility(index, series === "both" || datasetKey === series)
+  })
+  chart.update()
+}
+
+function buildSeriesToggles() {
+  document.querySelectorAll(".chart-series-toggle").forEach((toggle) => {
+    const buttons = toggle.querySelectorAll(".segmented__button")
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((item) => item.classList.remove("is-active"))
+        button.classList.add("is-active")
+        updateSeriesFilter(toggle.dataset.chart, button.dataset.series)
+      })
     })
   })
 }
@@ -769,7 +1137,9 @@ async function loadDashboard() {
   buildOverview(state.payload)
   buildKpis(state.payload)
   buildReportCarousel(state.payload)
+  buildBusinessReport(state.payload)
   buildCharts(state.payload)
+  buildSeriesToggles()
   buildDestinationToggle()
   buildSources(state.payload)
   buildPipeline(state.payload)

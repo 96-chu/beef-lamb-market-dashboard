@@ -1,5 +1,7 @@
 import argparse
 
+from build_forecast import build_forecast
+from build_insights import build_insights
 from build_market_summary import build_market_summary
 from build_report_charts import build_report_charts
 from export_dashboard_assets import export_dashboard_assets
@@ -45,6 +47,12 @@ def main() -> None:
         default=None,
         help="End business data month to keep after cleaning, for example 2025-12",
     )
+    parser.add_argument(
+        "--forecast-year",
+        type=int,
+        default=None,
+        help="Forecast year for the business outlook. Defaults to the next year after the latest data.",
+    )
     args = parser.parse_args()
 
     clean_production(
@@ -76,10 +84,22 @@ def main() -> None:
         start_release_month=args.start_release_month,
         end_release_month=args.end_release_month,
     )
+    build_insights(
+        release_month=args.release_month,
+        start_release_month=args.start_release_month,
+        end_release_month=args.end_release_month,
+    )
+    build_forecast(
+        release_month=args.release_month,
+        start_release_month=args.start_release_month,
+        end_release_month=args.end_release_month,
+        forecast_year=args.forecast_year,
+    )
     if args.start_release_month and args.end_release_month:
         export_dashboard_assets(
             start_release_month=args.start_release_month,
             end_release_month=args.end_release_month,
+            forecast_year=args.forecast_year,
         )
 
 

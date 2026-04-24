@@ -193,6 +193,29 @@ def infer_report_scope(file_name: str) -> tuple[str, int, str]:
     return "unknown", 0, "unknown"
 
 
+def resolve_report_sheet_name(file_path: Path) -> str:
+    """
+    Resolve the worksheet that contains the destination report.
+
+    Most files use a sheet named Report. A small number of older files use
+    a single generic sheet name such as Sheet1, so we fall back to the only
+    available worksheet when Report is missing.
+    """
+    workbook = pd.ExcelFile(file_path)
+    sheet_names = workbook.sheet_names
+
+    if "Report" in sheet_names:
+        return "Report"
+
+    if len(sheet_names) == 1:
+        return sheet_names[0]
+
+    raise ValueError(
+        f"Could not resolve report worksheet for {file_path.name}. "
+        f"Available sheets: {sheet_names}"
+    )
+
+
 def clean_one_file(file_path: Path, release_month: str) -> pd.DataFrame:
     """
     Clean a single DAFF export workbook.
@@ -205,8 +228,10 @@ def clean_one_file(file_path: Path, release_month: str) -> pd.DataFrame:
     5. Convert the wide table into a long table.
     6. Add business metadata used in downstream analysis.
     """
+    sheet_name = resolve_report_sheet_name(file_path)
+
     # Read the workbook without headers first to inspect the title row.
-    raw = pd.read_excel(file_path, sheet_name="Report", header=None)
+    raw = pd.read_excel(file_path, sheet_name=sheet_name, header=None)
     title = raw.iloc[0, 0]
     report_month = extract_report_month(title)
 
@@ -214,7 +239,7 @@ def clean_one_file(file_path: Path, release_month: str) -> pd.DataFrame:
     report_scope, is_cumulative, period_type = infer_report_scope(file_path.name)
 
     # Read the report table using the second row as the header row.
-    df = pd.read_excel(file_path, sheet_name="Report", header=1)
+    df = pd.read_excel(file_path, sheet_name=sheet_name, header=1)
     df = df.dropna(how="all").copy()
     df.columns = [
         re.sub(r"\s+", " ", str(col)).strip()
