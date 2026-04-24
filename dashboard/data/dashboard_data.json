@@ -2,19 +2,19 @@
   "meta": {
     "project_title": "Australian Beef & Lamb Market Intelligence",
     "subtitle": "A business-style static dashboard that explains both the market outcomes and the pipeline behind them.",
-    "generated_at_utc": "2026-04-23 09:47 UTC",
+    "generated_at_utc": "2026-04-24 07:29 UTC",
     "data_window": {
-      "start": "2024-01",
+      "start": "2020-01",
       "end": "2025-12",
       "frequency": "monthly exports and quarterly production"
     },
     "coverage": {
-      "export_release_months": 24,
-      "production_release_folders": 7,
-      "quarters_in_scope": 8,
+      "export_release_months": 72,
+      "production_release_folders": 1,
+      "quarters_in_scope": 24,
       "production_states": 9,
-      "clean_export_rows": 3370,
-      "clean_production_rows": 288
+      "clean_export_rows": 9911,
+      "clean_production_rows": 864
     }
   },
   "kpis": [
@@ -51,7 +51,7 @@
     {
       "title": "ABS Livestock Products, Australia",
       "type": "Quarterly production and slaughter",
-      "scope": "Production releases used: 2024-06 to 2025-12. Each workbook contains long historical quarterly series.",
+      "scope": "Production releases used: 2025-12 to 2025-12. Each workbook contains long historical quarterly series.",
       "raw_files": [
         "7215003.xlsx",
         "7215006.xlsx",
@@ -63,19 +63,19 @@
         "Extract description, series type, and series id metadata from fixed ABS rows.",
         "Keep only Original series to avoid mixing adjusted or trend variants.",
         "Deduplicate overlapping releases by keeping the latest release_month for each date + series_id record.",
-        "Filter the final business window down to 2024-01 through 2025-12."
+        "Filter the final business window down to 2020-01 through 2025-12."
       ],
       "outputs": [
-        "production_clean_archive_2024_01_to_2025_12.csv",
-        "production_clean_latest_2024_01_to_2025_12.csv"
+        "production_clean_archive_2020_01_to_2025_12.csv",
+        "production_clean_latest_2020_01_to_2025_12.csv"
       ]
     },
     {
       "title": "DAFF Monthly 57 Destination Reports",
       "type": "Monthly export flow",
-      "scope": "Monthly export releases used: 2024-01 through 2025-12.",
+      "scope": "Monthly export releases used: 2020-01 through 2025-12.",
       "raw_files": [
-        "2401_m57dest.xlsx",
+        "2001_m57dest.xlsx",
         "...",
         "2512_m57dest.xlsx"
       ],
@@ -87,8 +87,8 @@
         "Aggregate monthly flows into quarterly export totals for report-ready views."
       ],
       "outputs": [
-        "exports_clean_2024_01_to_2025_12.csv",
-        "exports_quarterly_2024_01_to_2025_12.csv"
+        "exports_clean_2020_01_to_2025_12.csv",
+        "exports_quarterly_2020_01_to_2025_12.csv"
       ]
     }
   ],
@@ -135,11 +135,11 @@
           "Parse measure, animal, and state from ABS description strings.",
           "Keep Original series only.",
           "Keep the latest release for each date + series_id pair.",
-          "Restrict the business window to 2024-01 through 2025-12."
+          "Restrict the business window to 2020-01 through 2025-12."
         ],
         "output": [
-          "production_clean_archive_2024_01_to_2025_12.csv",
-          "production_clean_latest_2024_01_to_2025_12.csv"
+          "production_clean_archive_2020_01_to_2025_12.csv",
+          "production_clean_latest_2020_01_to_2025_12.csv"
         ],
         "why": "Production workbooks contain decades of repeated history, so release-aware deduplication is essential."
       },
@@ -162,7 +162,7 @@
           "Keep the latest release for each report_month + destination + metric_name."
         ],
         "output": [
-          "exports_clean_2024_01_to_2025_12.csv"
+          "exports_clean_2020_01_to_2025_12.csv"
         ],
         "why": "Destination subtotals would otherwise inflate totals and distort ranking views."
       },
@@ -184,8 +184,8 @@
           "Create a compact market summary table for beef and lamb."
         ],
         "output": [
-          "exports_quarterly_2024_01_to_2025_12.csv",
-          "market_quarterly_summary_2024_01_to_2025_12.csv"
+          "exports_quarterly_2020_01_to_2025_12.csv",
+          "market_quarterly_summary_2020_01_to_2025_12.csv"
         ],
         "why": "This layer powers both executive summary views and chart-ready comparisons."
       },
@@ -217,6 +217,86 @@
   },
   "analytics": {
     "productionTrend": [
+      {
+        "label": "2020Q1",
+        "beef": 567339.0,
+        "lamb": 132863.0
+      },
+      {
+        "label": "2020Q2",
+        "beef": 540443.0,
+        "lamb": 112227.0
+      },
+      {
+        "label": "2020Q3",
+        "beef": 517663.0,
+        "lamb": 126604.0
+      },
+      {
+        "label": "2020Q4",
+        "beef": 477409.0,
+        "lamb": 128566.0
+      },
+      {
+        "label": "2021Q1",
+        "beef": 444575.0,
+        "lamb": 121899.0
+      },
+      {
+        "label": "2021Q2",
+        "beef": 477864.0,
+        "lamb": 137625.0
+      },
+      {
+        "label": "2021Q3",
+        "beef": 496903.0,
+        "lamb": 128749.0
+      },
+      {
+        "label": "2021Q4",
+        "beef": 463933.0,
+        "lamb": 119815.0
+      },
+      {
+        "label": "2022Q1",
+        "beef": 434175.0,
+        "lamb": 124629.0
+      },
+      {
+        "label": "2022Q2",
+        "beef": 473394.0,
+        "lamb": 140165.0
+      },
+      {
+        "label": "2022Q3",
+        "beef": 493222.0,
+        "lamb": 139331.0
+      },
+      {
+        "label": "2022Q4",
+        "beef": 468197.0,
+        "lamb": 132888.0
+      },
+      {
+        "label": "2023Q1",
+        "beef": 498314.0,
+        "lamb": 135670.0
+      },
+      {
+        "label": "2023Q2",
+        "beef": 544346.0,
+        "lamb": 149400.0
+      },
+      {
+        "label": "2023Q3",
+        "beef": 588985.0,
+        "lamb": 160881.0
+      },
+      {
+        "label": "2023Q4",
+        "beef": 577310.0,
+        "lamb": 152589.0
+      },
       {
         "label": "2024Q1",
         "beef": 569350.0,
@@ -259,6 +339,246 @@
       }
     ],
     "exportsTrend": [
+      {
+        "label": "2020-01",
+        "beef": 77531.91,
+        "lamb": 23125.09
+      },
+      {
+        "label": "2020-02",
+        "beef": 91021.82,
+        "lamb": 23366.24
+      },
+      {
+        "label": "2020-03",
+        "beef": 92468.73,
+        "lamb": 24654.54
+      },
+      {
+        "label": "2020-04",
+        "beef": 91477.26,
+        "lamb": 22466.26
+      },
+      {
+        "label": "2020-05",
+        "beef": 97564.87,
+        "lamb": 17848.03
+      },
+      {
+        "label": "2020-06",
+        "beef": 95043.0,
+        "lamb": 19686.48
+      },
+      {
+        "label": "2020-07",
+        "beef": 86813.36,
+        "lamb": 18355.63
+      },
+      {
+        "label": "2020-08",
+        "beef": 76392.95,
+        "lamb": 19145.7
+      },
+      {
+        "label": "2020-09",
+        "beef": 71187.63,
+        "lamb": 21788.66
+      },
+      {
+        "label": "2020-10",
+        "beef": 79305.65,
+        "lamb": 23972.35
+      },
+      {
+        "label": "2020-11",
+        "beef": 78719.93,
+        "lamb": 23941.68
+      },
+      {
+        "label": "2020-12",
+        "beef": 83563.48,
+        "lamb": 22944.14
+      },
+      {
+        "label": "2021-01",
+        "beef": 48400.96,
+        "lamb": 13377.01
+      },
+      {
+        "label": "2021-02",
+        "beef": 64938.61,
+        "lamb": 21268.13
+      },
+      {
+        "label": "2021-03",
+        "beef": 81071.96,
+        "lamb": 22318.82
+      },
+      {
+        "label": "2021-04",
+        "beef": 70222.47,
+        "lamb": 21409.0
+      },
+      {
+        "label": "2021-05",
+        "beef": 74060.54,
+        "lamb": 25668.45
+      },
+      {
+        "label": "2021-06",
+        "beef": 71711.06,
+        "lamb": 26838.58
+      },
+      {
+        "label": "2021-07",
+        "beef": 79805.94,
+        "lamb": 24453.35
+      },
+      {
+        "label": "2021-08",
+        "beef": 75702.93,
+        "lamb": 22859.94
+      },
+      {
+        "label": "2021-09",
+        "beef": 78425.23,
+        "lamb": 21559.5
+      },
+      {
+        "label": "2021-10",
+        "beef": 72987.46,
+        "lamb": 19576.55
+      },
+      {
+        "label": "2021-11",
+        "beef": 74204.39,
+        "lamb": 20045.4
+      },
+      {
+        "label": "2021-12",
+        "beef": 75453.02,
+        "lamb": 21564.24
+      },
+      {
+        "label": "2022-01",
+        "beef": 42669.62,
+        "lamb": 16987.65
+      },
+      {
+        "label": "2022-02",
+        "beef": 58025.85,
+        "lamb": 20500.62
+      },
+      {
+        "label": "2022-03",
+        "beef": 72549.52,
+        "lamb": 23869.23
+      },
+      {
+        "label": "2022-04",
+        "beef": 60384.57,
+        "lamb": 21238.13
+      },
+      {
+        "label": "2022-05",
+        "beef": 78516.32,
+        "lamb": 26184.12
+      },
+      {
+        "label": "2022-06",
+        "beef": 78190.58,
+        "lamb": 24365.18
+      },
+      {
+        "label": "2022-07",
+        "beef": 73467.27,
+        "lamb": 24692.47
+      },
+      {
+        "label": "2022-08",
+        "beef": 89645.13,
+        "lamb": 25757.88
+      },
+      {
+        "label": "2022-09",
+        "beef": 67902.17,
+        "lamb": 24578.29
+      },
+      {
+        "label": "2022-10",
+        "beef": 70886.96,
+        "lamb": 25771.69
+      },
+      {
+        "label": "2022-11",
+        "beef": 68229.71,
+        "lamb": 22650.72
+      },
+      {
+        "label": "2022-12",
+        "beef": 74951.89,
+        "lamb": 22591.96
+      },
+      {
+        "label": "2023-01",
+        "beef": 50361.64,
+        "lamb": 17932.72
+      },
+      {
+        "label": "2023-02",
+        "beef": 69453.46,
+        "lamb": 22466.85
+      },
+      {
+        "label": "2023-03",
+        "beef": 97615.21,
+        "lamb": 24806.71
+      },
+      {
+        "label": "2023-04",
+        "beef": 70724.6,
+        "lamb": 21725.25
+      },
+      {
+        "label": "2023-05",
+        "beef": 89903.94,
+        "lamb": 27699.37
+      },
+      {
+        "label": "2023-06",
+        "beef": 92251.79,
+        "lamb": 27985.27
+      },
+      {
+        "label": "2023-07",
+        "beef": 95461.94,
+        "lamb": 27113.48
+      },
+      {
+        "label": "2023-08",
+        "beef": 100395.5,
+        "lamb": 30969.81
+      },
+      {
+        "label": "2023-09",
+        "beef": 96706.68,
+        "lamb": 30889.76
+      },
+      {
+        "label": "2023-10",
+        "beef": 103142.12,
+        "lamb": 29647.0
+      },
+      {
+        "label": "2023-11",
+        "beef": 92242.71,
+        "lamb": 29145.79
+      },
+      {
+        "label": "2023-12",
+        "beef": 104677.58,
+        "lamb": 27977.53
+      },
       {
         "label": "2024-01",
         "beef": 74147.39,
@@ -382,6 +702,102 @@
     ],
     "exportMix": [
       {
+        "label": "2020Q1",
+        "beef": 261022.46,
+        "lamb": 71145.88,
+        "mutton": 46135.88
+      },
+      {
+        "label": "2020Q2",
+        "beef": 284085.13,
+        "lamb": 60000.77,
+        "mutton": 23170.26
+      },
+      {
+        "label": "2020Q3",
+        "beef": 234393.93,
+        "lamb": 59289.99,
+        "mutton": 25486.54
+      },
+      {
+        "label": "2020Q4",
+        "beef": 241589.07,
+        "lamb": 70858.16,
+        "mutton": 43664.44
+      },
+      {
+        "label": "2021Q1",
+        "beef": 194411.53,
+        "lamb": 56963.95,
+        "mutton": 34429.71
+      },
+      {
+        "label": "2021Q2",
+        "beef": 215994.07,
+        "lamb": 73916.04,
+        "mutton": 28043.26
+      },
+      {
+        "label": "2021Q3",
+        "beef": 233934.1,
+        "lamb": 68872.79,
+        "mutton": 30189.24
+      },
+      {
+        "label": "2021Q4",
+        "beef": 222644.87,
+        "lamb": 61186.19,
+        "mutton": 47281.54
+      },
+      {
+        "label": "2022Q1",
+        "beef": 173244.99,
+        "lamb": 61357.49,
+        "mutton": 34939.27
+      },
+      {
+        "label": "2022Q2",
+        "beef": 217091.48,
+        "lamb": 71787.44,
+        "mutton": 32044.14
+      },
+      {
+        "label": "2022Q3",
+        "beef": 231014.58,
+        "lamb": 75028.64,
+        "mutton": 32992.15
+      },
+      {
+        "label": "2022Q4",
+        "beef": 214068.56,
+        "lamb": 71014.36,
+        "mutton": 42550.77
+      },
+      {
+        "label": "2023Q1",
+        "beef": 217430.31,
+        "lamb": 65206.28,
+        "mutton": 50305.75
+      },
+      {
+        "label": "2023Q2",
+        "beef": 252880.33,
+        "lamb": 77409.9,
+        "mutton": 50781.91
+      },
+      {
+        "label": "2023Q3",
+        "beef": 292564.12,
+        "lamb": 88973.05,
+        "mutton": 44289.59
+      },
+      {
+        "label": "2023Q4",
+        "beef": 300062.42,
+        "lamb": 86770.31,
+        "mutton": 60221.68
+      },
+      {
         "label": "2024Q1",
         "beef": 271334.63,
         "lamb": 84655.9,
@@ -433,74 +849,186 @@
     "topDestinations": {
       "beef": [
         {
-          "destination": "USA East",
-          "tonnes": 670452.77
+          "destination": "Japan",
+          "tonnes": 1429209.11
         },
         {
-          "destination": "Japan",
-          "tonnes": 504982.17
+          "destination": "USA East",
+          "tonnes": 1219006.9
         },
         {
           "destination": "China",
-          "tonnes": 466165.72
+          "tonnes": 1175495.59
         },
         {
           "destination": "South Korea",
-          "tonnes": 421894.85
+          "tonnes": 1097445.57
         },
         {
           "destination": "USA West",
-          "tonnes": 176885.65
+          "tonnes": 364421.48
         },
         {
           "destination": "Indonesia",
-          "tonnes": 150760.53
-        },
-        {
-          "destination": "Canada East",
-          "tonnes": 71053.96
+          "tonnes": 351382.2
         },
         {
           "destination": "Taiwan",
-          "tonnes": 65514.27
+          "tonnes": 161417.95
+        },
+        {
+          "destination": "Philippines",
+          "tonnes": 149459.64
         }
       ],
       "lamb": [
         {
-          "destination": "USA East",
-          "tonnes": 136486.42
+          "destination": "China",
+          "tonnes": 362378.05
         },
         {
-          "destination": "China",
-          "tonnes": 116484.42
+          "destination": "USA East",
+          "tonnes": 343868.92
         },
         {
           "destination": "Dubai",
-          "tonnes": 50754.49
-        },
-        {
-          "destination": "Papua New Guinea",
-          "tonnes": 40395.67
+          "tonnes": 115146.56
         },
         {
           "destination": "South Korea",
-          "tonnes": 37707.58
+          "tonnes": 112601.11
         },
         {
-          "destination": "United Kingdom",
-          "tonnes": 32948.54
+          "destination": "Papua New Guinea",
+          "tonnes": 107985.04
         },
         {
           "destination": "USA West",
-          "tonnes": 32889.67
+          "tonnes": 98095.52
         },
         {
-          "destination": "Iran",
-          "tonnes": 28738.63
+          "destination": "Japan",
+          "tonnes": 63385.52
+        },
+        {
+          "destination": "Malaysia",
+          "tonnes": 63335.46
         }
       ]
     },
     "productionVsExports": [
+      {
+        "label": "2020Q1",
+        "beef_production": 567339.0,
+        "beef_exports": 261022.46,
+        "lamb_production": 132863.0,
+        "lamb_exports": 71145.88
+      },
+      {
+        "label": "2020Q2",
+        "beef_production": 540443.0,
+        "beef_exports": 284085.13,
+        "lamb_production": 112227.0,
+        "lamb_exports": 60000.77
+      },
+      {
+        "label": "2020Q3",
+        "beef_production": 517663.0,
+        "beef_exports": 234393.93,
+        "lamb_production": 126604.0,
+        "lamb_exports": 59289.99
+      },
+      {
+        "label": "2020Q4",
+        "beef_production": 477409.0,
+        "beef_exports": 241589.07,
+        "lamb_production": 128566.0,
+        "lamb_exports": 70858.16
+      },
+      {
+        "label": "2021Q1",
+        "beef_production": 444575.0,
+        "beef_exports": 194411.53,
+        "lamb_production": 121899.0,
+        "lamb_exports": 56963.95
+      },
+      {
+        "label": "2021Q2",
+        "beef_production": 477864.0,
+        "beef_exports": 215994.07,
+        "lamb_production": 137625.0,
+        "lamb_exports": 73916.04
+      },
+      {
+        "label": "2021Q3",
+        "beef_production": 496903.0,
+        "beef_exports": 233934.1,
+        "lamb_production": 128749.0,
+        "lamb_exports": 68872.79
+      },
+      {
+        "label": "2021Q4",
+        "beef_production": 463933.0,
+        "beef_exports": 222644.87,
+        "lamb_production": 119815.0,
+        "lamb_exports": 61186.19
+      },
+      {
+        "label": "2022Q1",
+        "beef_production": 434175.0,
+        "beef_exports": 173244.99,
+        "lamb_production": 124629.0,
+        "lamb_exports": 61357.49
+      },
+      {
+        "label": "2022Q2",
+        "beef_production": 473394.0,
+        "beef_exports": 217091.48,
+        "lamb_production": 140165.0,
+        "lamb_exports": 71787.44
+      },
+      {
+        "label": "2022Q3",
+        "beef_production": 493222.0,
+        "beef_exports": 231014.58,
+        "lamb_production": 139331.0,
+        "lamb_exports": 75028.64
+      },
+      {
+        "label": "2022Q4",
+        "beef_production": 468197.0,
+        "beef_exports": 214068.56,
+        "lamb_production": 132888.0,
+        "lamb_exports": 71014.36
+      },
+      {
+        "label": "2023Q1",
+        "beef_production": 498314.0,
+        "beef_exports": 217430.31,
+        "lamb_production": 135670.0,
+        "lamb_exports": 65206.28
+      },
+      {
+        "label": "2023Q2",
+        "beef_production": 544346.0,
+        "beef_exports": 252880.33,
+        "lamb_production": 149400.0,
+        "lamb_exports": 77409.9
+      },
+      {
+        "label": "2023Q3",
+        "beef_production": 588985.0,
+        "beef_exports": 292564.12,
+        "lamb_production": 160881.0,
+        "lamb_exports": 88973.05
+      },
+      {
+        "label": "2023Q4",
+        "beef_production": 577310.0,
+        "beef_exports": 300062.42,
+        "lamb_production": 152589.0,
+        "lamb_exports": 86770.31
+      },
       {
         "label": "2024Q1",
         "beef_production": 569350.0,
@@ -559,6 +1087,330 @@
       }
     ]
   },
+  "businessReport": {
+    "title": "2026 Commercial Outlook",
+    "subtitle": "Integrated business report for 2020-01 to 2025-12, combining market insights, forecast scenarios, and operating risk factors.",
+    "executiveSummary": [
+      "Beef is the clearer growth engine, with export expansion outpacing production growth in the latest year-on-year view.",
+      "Lamb needs portfolio-level interpretation: total exports softened, but export share of production stayed elevated because supply also declined.",
+      "Destination exposure is a central commercial risk, especially for beef where the top four markets account for most export volume.",
+      "The base forecast points to 1,510,923 tonnes of beef exports and 367,201 tonnes of lamb exports in 2026.",
+      "Base export-share pressure is estimated at 52.6% for beef and 56.2% for lamb in 2026."
+    ],
+    "keyFindings": [
+      {
+        "title": "Beef | Export growth",
+        "category": "Market Growth",
+        "period": "2025",
+        "direction": "strong_growth",
+        "valueLabel": "1,519,984 tonnes",
+        "changeLabel": "15.4%",
+        "businessSignal": "Beef export demand changed 15.4% from 2024 to 2025.",
+        "recommendation": "Prioritise capacity planning and destination monitoring if growth is above production growth.",
+        "narrative": "Beef exports reached 1,519,984 tonnes in 2025, a 15.4% change versus 2024."
+      },
+      {
+        "title": "Beef | Production growth",
+        "category": "Supply",
+        "period": "2025",
+        "direction": "strong_growth",
+        "valueLabel": "2,869,097 tonnes",
+        "changeLabel": "11.7%",
+        "businessSignal": "Beef production changed 11.7% from 2024 to 2025.",
+        "recommendation": "Use production growth as a supply-side anchor when interpreting export momentum.",
+        "narrative": "Beef production was 2,869,097 tonnes in 2025, compared with 2,569,121 tonnes in 2024."
+      },
+      {
+        "title": "Beef | Export share of production",
+        "category": "Supply Demand Balance",
+        "period": "2025",
+        "direction": "stable",
+        "valueLabel": "53.0%",
+        "changeLabel": "+1.7 pts",
+        "businessSignal": "Beef exports represented 53.0% of production in 2025.",
+        "recommendation": "Track this ratio as a pressure indicator: a rising share means more output is being pulled into export channels.",
+        "narrative": "Beef export share of production moved from 51.2% in 2024 to 53.0% in 2025."
+      },
+      {
+        "title": "Lamb | Export growth",
+        "category": "Market Growth",
+        "period": "2025",
+        "direction": "stable",
+        "valueLabel": "336,724 tonnes",
+        "changeLabel": "-2.5%",
+        "businessSignal": "Lamb export demand changed -2.5% from 2024 to 2025.",
+        "recommendation": "Investigate destination-level weakness before treating the decline as a category-wide issue.",
+        "narrative": "Lamb exports reached 336,724 tonnes in 2025, a -2.5% change versus 2024."
+      },
+      {
+        "title": "Lamb | Production growth",
+        "category": "Supply",
+        "period": "2025",
+        "direction": "decline",
+        "valueLabel": "597,068 tonnes",
+        "changeLabel": "-5.2%",
+        "businessSignal": "Lamb production changed -5.2% from 2024 to 2025.",
+        "recommendation": "Use production growth as a supply-side anchor when interpreting export momentum.",
+        "narrative": "Lamb production was 597,068 tonnes in 2025, compared with 629,682 tonnes in 2024."
+      },
+      {
+        "title": "Lamb | Export share of production",
+        "category": "Supply Demand Balance",
+        "period": "2025",
+        "direction": "stable",
+        "valueLabel": "56.4%",
+        "changeLabel": "+1.6 pts",
+        "businessSignal": "Lamb exports represented 56.4% of production in 2025.",
+        "recommendation": "Track this ratio as a pressure indicator: a rising share means more output is being pulled into export channels.",
+        "narrative": "Lamb export share of production moved from 54.8% in 2024 to 56.4% in 2025."
+      },
+      {
+        "title": "Beef | Destination concentration",
+        "category": "Destination Portfolio",
+        "period": "2025",
+        "direction": "high_concentration",
+        "valueLabel": "73.5%",
+        "changeLabel": "not available",
+        "businessSignal": "The top four Beef destinations represented 73.5% of 2025 export volume.",
+        "recommendation": "Treat the top destinations as priority account markets, while monitoring concentration risk.",
+        "narrative": "Beef export demand was concentrated in USA East, China, Japan, South Korea, which together accounted for 73.5% of 2025 export volume."
+      },
+      {
+        "title": "Lamb | Destination concentration",
+        "category": "Destination Portfolio",
+        "period": "2025",
+        "direction": "balanced",
+        "valueLabel": "52.3%",
+        "changeLabel": "not available",
+        "businessSignal": "The top four Lamb destinations represented 52.3% of 2025 export volume.",
+        "recommendation": "Treat the top destinations as priority account markets, while monitoring concentration risk.",
+        "narrative": "Lamb export demand was concentrated in USA East, China, Dubai, South Korea, which together accounted for 52.3% of 2025 export volume."
+      },
+      {
+        "title": "Beef | Destination gain",
+        "category": "Destination Portfolio",
+        "period": "2025",
+        "direction": "strong_growth",
+        "valueLabel": "272,939 tonnes",
+        "changeLabel": "41.2%",
+        "businessSignal": "China added 79,711 tonnes of Beef export volume versus 2024.",
+        "recommendation": "Use high-growth destinations to explain the demand story and identify priority markets.",
+        "narrative": "China was a major Beef growth destination in 2025, rising 41.3% year on year."
+      },
+      {
+        "title": "Beef | Destination gain",
+        "category": "Destination Portfolio",
+        "period": "2025",
+        "direction": "strong_growth",
+        "valueLabel": "364,815 tonnes",
+        "changeLabel": "19.4%",
+        "businessSignal": "USA East added 59,178 tonnes of Beef export volume versus 2024.",
+        "recommendation": "Use high-growth destinations to explain the demand story and identify priority markets.",
+        "narrative": "USA East was a major Beef growth destination in 2025, rising 19.4% year on year."
+      },
+      {
+        "title": "Beef | Destination gain",
+        "category": "Destination Portfolio",
+        "period": "2025",
+        "direction": "strong_growth",
+        "valueLabel": "221,350 tonnes",
+        "changeLabel": "10.4%",
+        "businessSignal": "South Korea added 20,805 tonnes of Beef export volume versus 2024.",
+        "recommendation": "Use high-growth destinations to explain the demand story and identify priority markets.",
+        "narrative": "South Korea was a major Beef growth destination in 2025, rising 10.4% year on year."
+      },
+      {
+        "title": "Beef | Destination decline",
+        "category": "Destination Portfolio",
+        "period": "2025",
+        "direction": "strong_decline",
+        "valueLabel": "66,582 tonnes",
+        "changeLabel": "-20.9%",
+        "businessSignal": "Indonesia reduced Beef export volume by 17,596 tonnes versus 2024.",
+        "recommendation": "Flag declining destinations as a portfolio risk or a shift in market allocation.",
+        "narrative": "Indonesia was a material drag on Beef exports in 2025, changing -20.9% year on year."
+      }
+    ],
+    "forecast": {
+      "year": 2026,
+      "model": "Linear trend with monthly or quarterly seasonality",
+      "methodNote": "The forecast is a transparent baseline model. Scenario bands are not live AI predictions; they translate model error and business uncertainty into conservative, base, and high cases.",
+      "annualBaseCards": [
+        {
+          "label": "Beef Exports",
+          "value": 1510923.27,
+          "valueLabel": "1,510,923 tonnes",
+          "unit": "tonnes",
+          "period": "2026",
+          "targetMetric": "exports_tonnes",
+          "product": "beef"
+        },
+        {
+          "label": "Beef Production",
+          "value": 2873253.67,
+          "valueLabel": "2,873,254 tonnes",
+          "unit": "tonnes",
+          "period": "2026",
+          "targetMetric": "production_tonnes",
+          "product": "beef"
+        },
+        {
+          "label": "Beef Export share",
+          "value": 52.59,
+          "valueLabel": "52.6%",
+          "unit": "percent",
+          "period": "2026",
+          "targetMetric": "export_share_pct",
+          "product": "beef"
+        },
+        {
+          "label": "Lamb Exports",
+          "value": 367201.35,
+          "valueLabel": "367,201 tonnes",
+          "unit": "tonnes",
+          "period": "2026",
+          "targetMetric": "exports_tonnes",
+          "product": "lamb"
+        },
+        {
+          "label": "Lamb Production",
+          "value": 652810.07,
+          "valueLabel": "652,810 tonnes",
+          "unit": "tonnes",
+          "period": "2026",
+          "targetMetric": "production_tonnes",
+          "product": "lamb"
+        },
+        {
+          "label": "Lamb Export share",
+          "value": 56.25,
+          "valueLabel": "56.2%",
+          "unit": "percent",
+          "period": "2026",
+          "targetMetric": "export_share_pct",
+          "product": "lamb"
+        }
+      ],
+      "scenarioSummary": [
+        {
+          "product": "beef",
+          "label": "Beef",
+          "exports": {
+            "conservative": 1323919.15,
+            "base": 1510923.27,
+            "high": 1697927.39
+          },
+          "productionBase": 2873253.67,
+          "exportShare": {
+            "conservative": 41.89,
+            "base": 52.59,
+            "high": 65.66
+          }
+        },
+        {
+          "product": "lamb",
+          "label": "Lamb",
+          "exports": {
+            "conservative": 329362.61,
+            "base": 367201.35,
+            "high": 405040.1
+          },
+          "productionBase": 652810.07,
+          "exportShare": {
+            "conservative": 45.87,
+            "base": 56.25,
+            "high": 68.94
+          }
+        }
+      ]
+    },
+    "impactFactors": [
+      {
+        "factor": "Climate and environmental conditions",
+        "pressure": "Supply volatility",
+        "businessImpact": "Rainfall, pasture availability, heat stress, and water constraints can change herd or flock turnoff, carcass weights, and production timing.",
+        "forecastUse": "Use the conservative production case when seasonal conditions reduce supply confidence.",
+        "watchMetrics": [
+          "Rainfall outlook",
+          "Pasture growth",
+          "Livestock weights",
+          "Water availability"
+        ]
+      },
+      {
+        "factor": "Feed and input costs",
+        "pressure": "Margin and production response",
+        "businessImpact": "Feed, energy, and on-farm operating costs influence finishing decisions and can shift the volume available for export channels.",
+        "forecastUse": "Stress test the base case if input costs rise faster than export prices.",
+        "watchMetrics": [
+          "Feed grain prices",
+          "Energy costs",
+          "Farmgate margins",
+          "Processor margins"
+        ]
+      },
+      {
+        "factor": "Processing and cold-chain capacity",
+        "pressure": "Throughput constraint",
+        "businessImpact": "Labour availability, plant throughput, refrigeration, and container capacity can limit how quickly production converts into export shipments.",
+        "forecastUse": "Treat high export scenarios as capacity-dependent rather than purely demand-driven.",
+        "watchMetrics": [
+          "Plant utilisation",
+          "Labour availability",
+          "Cold storage capacity",
+          "Container availability"
+        ]
+      },
+      {
+        "factor": "Freight, ports, and shipping reliability",
+        "pressure": "Service-level risk",
+        "businessImpact": "Port delays, freight cost changes, and shipping schedule reliability can affect delivery performance in premium destination markets.",
+        "forecastUse": "Apply scenario bands to destination exposure when logistics reliability weakens.",
+        "watchMetrics": [
+          "Freight rates",
+          "Port dwell time",
+          "Transit reliability",
+          "Container lead time"
+        ]
+      },
+      {
+        "factor": "Trade access and biosecurity",
+        "pressure": "Market access risk",
+        "businessImpact": "Export certification, biosecurity status, tariff access, and destination-market rules can quickly change achievable volume by country.",
+        "forecastUse": "Use destination concentration insights to prioritise risk monitoring for key markets.",
+        "watchMetrics": [
+          "Trade access notices",
+          "Biosecurity alerts",
+          "Tariff changes",
+          "Destination approvals"
+        ]
+      },
+      {
+        "factor": "Currency and consumer demand",
+        "pressure": "Demand and pricing sensitivity",
+        "businessImpact": "Exchange rates, retail demand, foodservice recovery, and competitor supply influence how much volume destinations can absorb.",
+        "forecastUse": "Use the high case only where demand strength is supported by market pricing and destination growth signals.",
+        "watchMetrics": [
+          "AUD exchange rate",
+          "Import demand",
+          "Foodservice demand",
+          "Competitor supply"
+        ]
+      }
+    ],
+    "recommendations": [
+      "Use beef as the headline growth story, but frame it with concentration risk in the largest destination markets.",
+      "Position lamb as a market-portfolio problem rather than a simple decline story: identify growing destinations separately from falling ones.",
+      "Track export share of production as the core supply-demand pressure metric across the forecast year.",
+      "Connect the scenario bands to operating assumptions: climate affects supply, logistics affects executable shipments, and trade access affects destination allocation.",
+      "Add external datasets in a later version for rainfall, freight rates, exchange rates, and feed costs to turn the qualitative risk matrix into a quantified driver model."
+    ],
+    "limitations": [
+      "Forecasts are based on the historical ABS and DAFF series currently packaged in the project.",
+      "Environmental, logistics, currency, and trade factors are represented as scenario drivers, not live external inputs.",
+      "The next enhancement would join external climate, freight, feed-cost, and FX datasets into the forecasting layer."
+    ]
+  },
   "reportSlides": [
     {
       "title": "Executive KPI Snapshot",
@@ -567,7 +1419,7 @@
     },
     {
       "title": "Quarterly Production Trend",
-      "caption": "Australia-level production shows beef scale versus lamb seasonality across eight quarters.",
+      "caption": "Australia-level production shows beef scale versus lamb seasonality across 24 quarters.",
       "image": "assets/reports/chart_02_production_trend.png"
     },
     {
@@ -594,23 +1446,33 @@
   "artifacts": [
     {
       "label": "Production Latest",
-      "path": "data/processed/production_clean_latest_2024_01_to_2025_12.csv",
+      "path": "data/processed/production_clean_latest_2020_01_to_2025_12.csv",
       "description": "Deduplicated ABS quarterly facts within the target business window."
     },
     {
       "label": "Exports Clean",
-      "path": "data/processed/exports_clean_2024_01_to_2025_12.csv",
+      "path": "data/processed/exports_clean_2020_01_to_2025_12.csv",
       "description": "Monthly destination-level export facts with subtotal rows removed."
     },
     {
       "label": "Exports Quarterly",
-      "path": "data/processed/exports_quarterly_2024_01_to_2025_12.csv",
+      "path": "data/processed/exports_quarterly_2020_01_to_2025_12.csv",
       "description": "Quarterly destination-level export totals with completeness flags."
     },
     {
       "label": "Market Summary",
-      "path": "data/processed/market_quarterly_summary_2024_01_to_2025_12.csv",
+      "path": "data/processed/market_quarterly_summary_2020_01_to_2025_12.csv",
       "description": "Executive comparison layer for quarterly exports, production, and slaughter."
+    },
+    {
+      "label": "Market Insights",
+      "path": "data/processed/market_insights_2020_01_to_2025_12.csv",
+      "description": "Structured business insight table with narratives, signals, and recommendations."
+    },
+    {
+      "label": "Market Forecast",
+      "path": "data/processed/market_forecast_2020_01_to_2025_12_for_2026.csv",
+      "description": "Scenario forecast output for exports, production, and export-share pressure."
     }
   ],
   "qualityRules": [
@@ -618,6 +1480,6 @@
     "Deduplicate production by date + series_id using the latest release month.",
     "Deduplicate exports by report_month + destination + metric_name using the latest release month.",
     "Exclude subtotal destinations such as Total Asia, Other EU, and All Other Countries.",
-    "Limit the business reporting window to 2024-01 through 2025-12 after deduplication."
+    "Limit the business reporting window to 2020-01 through 2025-12 after deduplication."
   ]
 }
