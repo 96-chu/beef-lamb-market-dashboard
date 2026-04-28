@@ -51,6 +51,7 @@ const MARKET_META = [
   { match: ["Bahrain"], label: "Bahrain", code: "BH" },
 ]
 
+// Keep null or missing chart values from breaking arithmetic or Chart.js rendering.
 function safeNumber(value) {
   return value == null ? 0 : value
 }
@@ -130,6 +131,23 @@ function getMarketMeta(item) {
   return MARKET_META.find((market) =>
     market.match.some((token) => source.includes(token))
   ) || null
+}
+
+function getRevealRoot(target) {
+  if (!target) {
+    return null
+  }
+
+  return target.classList.contains("reveal")
+    ? target
+    : target.closest(".reveal")
+}
+
+function revealElement(target) {
+  const revealRoot = getRevealRoot(target)
+  if (revealRoot) {
+    revealRoot.classList.add("is-visible")
+  }
 }
 
 function buildOverview(payload) {
@@ -268,6 +286,7 @@ function buildOverview(payload) {
       setHeroStep(index)
       const target = document.querySelector(button.dataset.target)
       if (target) {
+        revealElement(target)
         target.scrollIntoView({ behavior: "smooth", block: "start" })
       }
       startHeroStepAutoplay()
@@ -551,6 +570,8 @@ function buildBusinessReport(payload) {
     .join("")
 
   const scenarioRows = report.forecast.scenarioSummary
+  // The mobile layout turns each row into a stacked card, so each value cell
+  // needs its own label for small screens.
   document.getElementById("forecast-scenario-table").innerHTML = `
     <thead>
       <tr>
@@ -566,11 +587,11 @@ function buildBusinessReport(payload) {
         .map(
           (item) => `
             <tr>
-              <td>${item.label}</td>
-              <td>${formatUnitValue(item.exports.conservative, "tonnes")}</td>
-              <td>${formatUnitValue(item.exports.base, "tonnes")}</td>
-              <td>${formatUnitValue(item.exports.high, "tonnes")}</td>
-              <td>${formatUnitValue(item.exportShare.base, "percent")}</td>
+              <td data-label="Product">${item.label}</td>
+              <td data-label="Conservative exports">${formatUnitValue(item.exports.conservative, "tonnes")}</td>
+              <td data-label="Base exports">${formatUnitValue(item.exports.base, "tonnes")}</td>
+              <td data-label="High exports">${formatUnitValue(item.exports.high, "tonnes")}</td>
+              <td data-label="Base export share">${formatUnitValue(item.exportShare.base, "percent")}</td>
             </tr>
           `
         )
@@ -1127,6 +1148,35 @@ function buildRevealObserver() {
   })
 }
 
+// Handle direct hash navigation on first load, which can otherwise land on a
+// still-hidden `.reveal` section before the observer fires on mobile.
+function revealHashTarget() {
+  if (!window.location.hash) {
+    return
+  }
+
+  const target = document.querySelector(window.location.hash)
+  revealElement(target)
+}
+
+// Keep anchor-driven navigation visible immediately, even on narrow viewports
+// where sticky headers and reveal timing make blank sections more noticeable.
+function bindAnchorVisibility() {
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener("click", () => {
+      const hash = link.getAttribute("href")
+      if (!hash || hash === "#") {
+        return
+      }
+
+      const target = document.querySelector(hash)
+      revealElement(target)
+    })
+  })
+
+  window.addEventListener("hashchange", revealHashTarget)
+}
+
 async function loadDashboard() {
   const response = await fetch("/data/dashboard_data.json")
   if (!response.ok) {
@@ -1146,6 +1196,8 @@ async function loadDashboard() {
   buildRules(state.payload)
   buildArtifacts(state.payload)
   buildRevealObserver()
+  bindAnchorVisibility()
+  revealHashTarget()
 }
 
 window.addEventListener("DOMContentLoaded", () => {
