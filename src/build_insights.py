@@ -96,6 +96,22 @@ def load_inputs(
     exports = pd.read_csv(exports_path)
     summary = pd.read_csv(summary_path)
 
+    return prepare_inputs(exports, summary)
+
+
+def prepare_inputs(
+    exports: pd.DataFrame,
+    summary: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Validate and normalize uploaded or processed market inputs.
+
+    This function is intentionally free of file I/O so the insight logic can be
+    called from a web API, Streamlit upload flow, notebook, or CLI wrapper.
+    """
+    exports = exports.copy()
+    summary = summary.copy()
+
     validate_exports(exports)
     validate_summary(summary)
 
@@ -597,21 +613,17 @@ def build_product_mix_insights(
     return sort_order
 
 
-def build_insights(
-    release_month: Optional[str] = None,
-    start_release_month: Optional[str] = None,
-    end_release_month: Optional[str] = None,
+def build_insights_from_frames(
+    exports: pd.DataFrame,
+    summary: pd.DataFrame,
 ) -> pd.DataFrame:
     """
-    Build a structured insight table from processed market outputs.
-    """
-    validate_release_mode(release_month, start_release_month, end_release_month)
+    Build a structured insight table from in-memory market inputs.
 
-    exports, summary = load_inputs(
-        release_month=release_month,
-        start_release_month=start_release_month,
-        end_release_month=end_release_month,
-    )
+    This is the service boundary used by upload pages and APIs. It returns the
+    same schema as the CLI output without writing any files.
+    """
+    exports, summary = prepare_inputs(exports, summary)
 
     annual = annual_market_totals(summary)
     available_years = sorted(annual["year"].dropna().unique())
@@ -650,6 +662,41 @@ def build_insights(
     )
 
     result = pd.DataFrame(records).sort_values("sort_order").reset_index(drop=True)
+    return result
+
+
+def build_insight_payload(
+    exports: pd.DataFrame,
+    summary: pd.DataFrame,
+) -> dict:
+    """
+    Return insight records and lightweight metadata for an API response.
+    """
+    insights = build_insights_from_frames(exports, summary)
+    return {
+        "generated_at_utc": pd.Timestamp.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+        "record_count": int(len(insights)),
+        "records": insights.where(pd.notna(insights), None).to_dict(orient="records"),
+    }
+
+
+def build_insights(
+    release_month: Optional[str] = None,
+    start_release_month: Optional[str] = None,
+    end_release_month: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Build a structured insight table from processed market outputs.
+    """
+    validate_release_mode(release_month, start_release_month, end_release_month)
+
+    exports, summary = load_inputs(
+        release_month=release_month,
+        start_release_month=start_release_month,
+        end_release_month=end_release_month,
+    )
+
+    result = build_insights_from_frames(exports, summary)
 
     output_file_name = build_file_name(
         OUTPUT_SINGLE,

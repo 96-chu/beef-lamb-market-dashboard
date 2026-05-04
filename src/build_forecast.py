@@ -151,6 +151,19 @@ def load_inputs(
     exports = pd.read_csv(exports_path)
     summary = pd.read_csv(summary_path)
 
+    return prepare_inputs(exports, summary)
+
+
+def prepare_inputs(
+    exports: pd.DataFrame,
+    summary: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Validate and normalize uploaded or processed inputs without file I/O.
+    """
+    exports = exports.copy()
+    summary = summary.copy()
+
     validate_exports(exports)
     validate_summary(summary)
 
@@ -609,7 +622,7 @@ def build_forecast(
     scenario_pct: float = 0.10,
 ) -> pd.DataFrame:
     """
-    Build volume and export-share forecasts for beef and lamb.
+    Build volume and export-share forecasts for beef and lamb from files.
     """
     validate_release_mode(release_month, start_release_month, end_release_month)
 
@@ -618,6 +631,40 @@ def build_forecast(
         start_release_month=start_release_month,
         end_release_month=end_release_month,
     )
+
+    forecasts = build_forecast_from_frames(
+        exports,
+        summary,
+        forecast_year=forecast_year,
+        scenario_pct=scenario_pct,
+    )
+
+    resolved_forecast_year = int(forecasts["forecast_year"].dropna().max())
+    output_file_name = build_output_file_name(
+        forecast_year=resolved_forecast_year,
+        release_month=release_month,
+        start_release_month=start_release_month,
+        end_release_month=end_release_month,
+    )
+    output_path = PROCESSED_DIR / output_file_name
+    forecasts.to_csv(output_path, index=False)
+
+    print(f"Saved market forecast to: {output_path}")
+    return forecasts
+
+
+def build_forecast_from_frames(
+    exports: pd.DataFrame,
+    summary: pd.DataFrame,
+    forecast_year: Optional[int] = None,
+    scenario_pct: float = 0.10,
+) -> pd.DataFrame:
+    """
+    Build forecast records from in-memory inputs without writing files.
+
+    This is the service boundary used by upload pages and APIs.
+    """
+    exports, summary = prepare_inputs(exports, summary)
 
     latest_export_year = int(exports["report_month"].dt.year.max())
     latest_summary_year = int(summary["quarter"].astype(str).str[:4].astype(int).max())
@@ -682,17 +729,31 @@ def build_forecast(
             errors="coerce",
         ).round(2)
 
-    output_file_name = build_output_file_name(
-        forecast_year=forecast_year,
-        release_month=release_month,
-        start_release_month=start_release_month,
-        end_release_month=end_release_month,
-    )
-    output_path = PROCESSED_DIR / output_file_name
-    forecasts.to_csv(output_path, index=False)
-
-    print(f"Saved market forecast to: {output_path}")
     return forecasts
+
+
+def build_forecast_payload(
+    exports: pd.DataFrame,
+    summary: pd.DataFrame,
+    forecast_year: Optional[int] = None,
+    scenario_pct: float = 0.10,
+) -> dict:
+    """
+    Return forecast records and lightweight metadata for an API response.
+    """
+    forecasts = build_forecast_from_frames(
+        exports,
+        summary,
+        forecast_year=forecast_year,
+        scenario_pct=scenario_pct,
+    )
+    return {
+        "generated_at_utc": pd.Timestamp.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+        "forecast_year": int(forecasts["forecast_year"].dropna().max()),
+        "scenario_pct": scenario_pct,
+        "record_count": int(len(forecasts)),
+        "records": forecasts.where(pd.notna(forecasts), None).to_dict(orient="records"),
+    }
 
 
 def main() -> None:
