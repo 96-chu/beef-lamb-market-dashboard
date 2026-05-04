@@ -15,6 +15,7 @@ This repository currently supports four layers of work:
 2. Deduplicate overlapping releases and keep only the latest valid business records.
 3. Build quarterly summary outputs and six report-ready PNG charts.
 4. Export a static front-end package in `dashboard/` for local review or GitHub Pages deployment.
+5. Build a DuckDB star schema, SQL marts, and upload-driven report generator for BI workflows.
 
 ## Data Sources
 
@@ -84,6 +85,12 @@ Main processing steps:
 
 5. Static dashboard asset export  
    Implemented in [src/export_dashboard_assets.py](src/export_dashboard_assets.py)
+
+6. DuckDB star schema and KPI marts  
+   Implemented in [src/load/build_duckdb.py](src/load/build_duckdb.py), [sql/duckdb_schema.sql](sql/duckdb_schema.sql), [sql/marts.sql](sql/marts.sql), and [sql/kpi_queries.sql](sql/kpi_queries.sql)
+
+7. Upload-driven report generation  
+   Implemented in [src/services/report_service.py](src/services/report_service.py) and [app/streamlit_upload.py](app/streamlit_upload.py)
 
 ## Current Outputs
 
@@ -155,6 +162,48 @@ This run is intended to:
 - generate six PNG charts
 - export dashboard JSON and copy report assets into `dashboard/`
 
+## Build The DuckDB BI Model
+
+To create a local DuckDB database from processed CSV outputs:
+
+```bash
+python src/load/build_duckdb.py \
+  --window-token 2024_01_to_2025_12 \
+  --forecast-year 2026
+```
+
+This creates `data/processed/meat_market.duckdb` with:
+
+- dimension tables for date, product, destination, and state
+- fact tables for monthly exports, quarterly production, quarterly market summary, forecasts, and business insights
+- BI mart views for KPI snapshots, quarterly market trends, destination year-on-year movement, forecasts, and business signals
+
+Metric definitions are documented in [data_model/metric_definitions.md](data_model/metric_definitions.md).
+
+## Run The Upload Report App
+
+The Streamlit app accepts processed CSV uploads and returns insights, forecast records, and a markdown business report:
+
+```bash
+streamlit run app/streamlit_upload.py
+```
+
+Expected upload files:
+
+- `exports_clean_*.csv`
+- `market_quarterly_summary_*.csv`
+
+The same logic is exposed through service functions in [src/services/report_service.py](src/services/report_service.py), so it can be moved behind FastAPI later without changing the analytics model.
+
+## Power BI Blueprint
+
+The [powerbi/](powerbi/) folder contains:
+
+- a PBIP project blueprint
+- DAX measures
+- model and report design screenshots
+- instructions for connecting the DuckDB star schema or CSV marts in Power BI Desktop
+
 ## Run The Dashboard Locally
 
 Because the front-end reads JSON with `fetch`, it should be served from a local static server instead of opened directly with `file://`.
@@ -180,12 +229,17 @@ beef-lamb-market-dashboard/
   data/processed/            local cleaned and summary outputs
   reports/charts/            generated PNG report exports
   src/
+    services/                API-ready report generation service layer
     transform/               source-specific cleaning logic
+    load/                    database loaders for SQLite and DuckDB
     build_market_summary.py
     build_report_charts.py
     export_dashboard_assets.py
     run_pipeline.py
     run_reporting_pipeline.py
+  sql/                       DuckDB schema, marts, and KPI query examples
+  data_model/                metric definitions and KPI semantics
+  powerbi/                   Power BI project blueprint, DAX, and screenshots
   .github/workflows/         GitHub Pages deployment workflow
   environment.yml
 ```
