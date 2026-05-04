@@ -1,0 +1,55 @@
+Export Tonnes =
+SUM ( fact_exports_monthly[tonnes] )
+
+Production Tonnes =
+SUM ( fact_production_quarterly[value] )
+
+Market Summary Export Tonnes =
+SUM ( fact_market_quarterly[exports_tonnes] )
+
+Market Summary Production Tonnes =
+SUM ( fact_market_quarterly[production_tonnes] )
+
+Export Share % =
+DIVIDE ( [Market Summary Export Tonnes], [Market Summary Production Tonnes] )
+
+Forecast Value =
+SUM ( fact_forecast[forecast_value] )
+
+Forecast Base Value =
+CALCULATE ( [Forecast Value], fact_forecast[scenario] = "base" )
+
+Forecast Conservative Value =
+CALCULATE ( [Forecast Value], fact_forecast[scenario] = "conservative" )
+
+Forecast High Value =
+CALCULATE ( [Forecast Value], fact_forecast[scenario] = "high" )
+
+YoY Export Change =
+[Export Tonnes]
+    - CALCULATE (
+        [Export Tonnes],
+        SAMEPERIODLASTYEAR ( dim_date[date_value] )
+    )
+
+YoY Export Change % =
+DIVIDE (
+    [YoY Export Change],
+    CALCULATE (
+        [Export Tonnes],
+        SAMEPERIODLASTYEAR ( dim_date[date_value] )
+    )
+)
+
+Latest Export Tonnes =
+VAR LatestMonth =
+    MAX ( dim_date[date_value] )
+RETURN
+    CALCULATE (
+        [Export Tonnes],
+        dim_date[date_value] = LatestMonth
+    )
+
+Business Signal Count =
+COUNTROWS ( fact_insights )
+

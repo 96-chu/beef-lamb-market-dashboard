@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760">
+  <rect width="1280" height="760" fill="#f6f4ef"/>
+  <text x="48" y="58" font-family="Arial" font-size="30" font-weight="700" fill="#17332c">Power BI Model View</text>
+  <text x="48" y="92" font-family="Arial" font-size="16" fill="#5f6963">DuckDB star schema for beef and lamb market intelligence</text>
+
+  <g font-family="Arial" font-size="15">
+    <rect x="70" y="150" width="220" height="150" rx="8" fill="#ffffff" stroke="#b8c4bd"/>
+    <text x="92" y="184" font-size="20" font-weight="700" fill="#17332c">dim_date</text>
+    <text x="92" y="218" fill="#44504a">date_key</text>
+    <text x="92" y="246" fill="#44504a">date_value</text>
+    <text x="92" y="274" fill="#44504a">month_label / quarter_label</text>
+
+    <rect x="70" y="365" width="220" height="150" rx="8" fill="#ffffff" stroke="#b8c4bd"/>
+    <text x="92" y="399" font-size="20" font-weight="700" fill="#17332c">dim_product</text>
+    <text x="92" y="433" fill="#44504a">product_key</text>
+    <text x="92" y="461" fill="#44504a">product_code</text>
+    <text x="92" y="489" fill="#44504a">product_name</text>
+
+    <rect x="70" y="580" width="220" height="110" rx="8" fill="#ffffff" stroke="#b8c4bd"/>
+    <text x="92" y="614" font-size="20" font-weight="700" fill="#17332c">dim_state</text>
+    <text x="92" y="648" fill="#44504a">state_key</text>
+    <text x="92" y="676" fill="#44504a">state_name</text>
+
+    <rect x="990" y="150" width="220" height="130" rx="8" fill="#ffffff" stroke="#b8c4bd"/>
+    <text x="1012" y="184" font-size="20" font-weight="700" fill="#17332c">dim_destination</text>
+    <text x="1012" y="218" fill="#44504a">destination_key</text>
+    <text x="1012" y="246" fill="#44504a">destination_name</text>
+
+    <rect x="430" y="120" width="360" height="140" rx="8" fill="#fff8f3" stroke="#c77449"/>
+    <text x="455" y="154" font-size="20" font-weight="700" fill="#9f4d25">fact_exports_monthly</text>
+    <text x="455" y="188" fill="#44504a">report_month_key, product_key, destination_key</text>
+    <text x="455" y="216" fill="#44504a">metric_name, tonnes, source_file</text>
+
+    <rect x="430" y="310" width="360" height="140" rx="8" fill="#f4fbf7" stroke="#668c61"/>
+    <text x="455" y="344" font-size="20" font-weight="700" fill="#37643d">fact_production_quarterly</text>
+    <text x="455" y="378" fill="#44504a">quarter_date_key, product_key, state_key</text>
+    <text x="455" y="406" fill="#44504a">metric_group, value, series_id</text>
+
+    <rect x="430" y="500" width="360" height="140" rx="8" fill="#f6f8ff" stroke="#66769a"/>
+    <text x="455" y="534" font-size="20" font-weight="700" fill="#314166">fact_forecast</text>
+    <text x="455" y="568" fill="#44504a">forecast_year, scenario, target_metric</text>
+    <text x="455" y="596" fill="#44504a">forecast_value, backtest_mape_pct</text>
+
+    <rect x="860" y="380" width="270" height="130" rx="8" fill="#ffffff" stroke="#b8c4bd"/>
+    <text x="885" y="414" font-size="20" font-weight="700" fill="#17332c">fact_insights</text>
+    <text x="885" y="448" fill="#44504a">business_signal</text>
+    <text x="885" y="476" fill="#44504a">recommendation</text>
+  </g>
+
+  <g stroke="#82918a" stroke-width="3" fill="none">
+    <path d="M290 205 H430"/>
+    <path d="M290 438 H430"/>
+    <path d="M290 638 C345 638 360 380 430 380"/>
+    <path d="M790 190 H990"/>
+    <path d="M790 570 C850 570 840 445 860 445"/>
+    <path d="M290 438 C350 438 360 570 430 570"/>
+    <path d="M290 205 C360 205 360 570 430 570"/>
+  </g>
+</svg>
+
