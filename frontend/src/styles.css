@@ -440,6 +440,45 @@ textarea:focus {
   color: var(--muted);
 }
 
+.data-source-panel {
+  padding: 1rem;
+  border: 1px solid rgba(217, 178, 82, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(217, 178, 82, 0.11), rgba(111, 167, 200, 0.055)),
+    rgba(0, 0, 0, 0.12);
+  -webkit-backdrop-filter: blur(20px) saturate(145%);
+  backdrop-filter: blur(20px) saturate(145%);
+}
+
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.source-grid div {
+  display: grid;
+  gap: 0.35rem;
+  min-height: 6.4rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(244, 239, 228, 0.1);
+  border-radius: 8px;
+  background: rgba(244, 239, 228, 0.055);
+}
+
+.source-grid strong {
+  color: var(--text);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.98rem;
+}
+
+.source-grid span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.48;
+}
+
 .history-panel {
   margin-top: 1rem;
   padding: 1rem;
@@ -813,7 +852,8 @@ details p {
 
 @media (max-width: 1180px) {
   .workspace,
-  .answer-grid {
+  .answer-grid,
+  .source-grid {
     grid-template-columns: 1fr;
   }
 

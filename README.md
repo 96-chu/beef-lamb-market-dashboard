@@ -205,7 +205,7 @@ The AI Agent uses a local SQLite database built from the processed reporting out
 
 ```bash
 python src/load/load_to_sqlite.py \
-  --window-token 2024_01_to_2025_12 \
+  --window-token 2020_01_to_2025_12 \
   --forecast-year 2026
 ```
 
@@ -245,6 +245,8 @@ uvicorn api.main:app --reload --port 8001
 ```
 
 Use this setup for Vercel and other production-style deployments. If Groq changes model availability or you want to test another free-tier model, set `GROQ_MODEL` or the generic `AI_MODEL`.
+
+For local development, you can also put these variables in `.env.local`. That file is git-ignored and should never be committed.
 
 ### Ollama provider
 
@@ -307,7 +309,7 @@ Vercel cannot see your local ignored files. Build the SQLite database and commit
 
 ```bash
 python src/load/load_to_sqlite.py \
-  --window-token 2024_01_to_2025_12 \
+  --window-token 2020_01_to_2025_12 \
   --forecast-year 2026
 
 git add data/processed/meat_market.db
