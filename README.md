@@ -9,13 +9,14 @@ The current reporting window focuses on `2024-01` to `2025-12`:
 
 ## What This Project Does
 
-This repository currently supports four layers of work:
+This repository currently supports six layers of work:
 
 1. Clean raw source files from release folders under `data/raw/`.
 2. Deduplicate overlapping releases and keep only the latest valid business records.
 3. Build quarterly summary outputs and six report-ready PNG charts.
 4. Export a static front-end package in `dashboard/` for local review or GitHub Pages deployment.
 5. Build a DuckDB star schema, SQL marts, and upload-driven report generator for BI workflows.
+6. Serve an AI Agent layer with SQLite, FastAPI, provider-based tool calling, natural-language SQL, summaries, chart suggestions, and a React query page.
 
 ## Data Sources
 
@@ -91,6 +92,9 @@ Main processing steps:
 
 7. Upload-driven report generation  
    Implemented in [src/services/report_service.py](src/services/report_service.py) and [app/streamlit_upload.py](app/streamlit_upload.py)
+
+8. AI Agent API and React query page  
+   Implemented in [src/load/load_to_sqlite.py](src/load/load_to_sqlite.py), [src/agent/sql_tools.py](src/agent/sql_tools.py), [src/agent/providers.py](src/agent/providers.py), [src/agent/openai_agent.py](src/agent/openai_agent.py), [api/main.py](api/main.py), and [frontend/](frontend/)
 
 ## Current Outputs
 
@@ -195,6 +199,184 @@ Expected upload files:
 
 The same logic is exposed through service functions in [src/services/report_service.py](src/services/report_service.py), so it can be moved behind FastAPI later without changing the analytics model.
 
+## Build The SQLite AI Agent Database
+
+The AI Agent uses a local SQLite database built from the processed reporting outputs:
+
+```bash
+python src/load/load_to_sqlite.py \
+  --window-token 2024_01_to_2025_12 \
+  --forecast-year 2026
+```
+
+This creates `data/processed/meat_market.db` with:
+
+- `fact_exports`
+- `fact_production`
+- `market_quarterly_summary`
+- `market_insights`
+- `market_forecast`
+- dimensions for product, destination, and state
+- analysis views such as `vw_latest_kpis`, `vw_quarterly_market`, `vw_top_destinations_annual`, `vw_forecast_base_annual`, and `vw_market_insights`
+
+## Run The AI Agent API
+
+The Agent provider is selected by `AI_PROVIDER`.
+
+Provider options:
+
+- `groq`: production default, OpenAI-compatible hosted inference
+- `ollama`: local development with a local model
+- `openai`: OpenAI Responses API, useful when switching back to OpenAI
+
+`AI_MODEL` overrides the provider-specific model variable when set.
+
+### Groq provider for production
+
+The default hosted provider is Groq with `llama-3.1-8b-instant`.
+Groq uses an OpenAI-compatible base URL, so no local model process is needed.
+
+```bash
+export AI_PROVIDER="groq"
+export GROQ_API_KEY="your-groq-api-key"
+export GROQ_MODEL="llama-3.1-8b-instant"
+export GROQ_BASE_URL="https://api.groq.com/openai/v1"
+uvicorn api.main:app --reload --port 8001
+```
+
+Use this setup for Vercel and other production-style deployments. If Groq changes model availability or you want to test another free-tier model, set `GROQ_MODEL` or the generic `AI_MODEL`.
+
+### Ollama provider
+
+For local-only development, you can still use Ollama with Llama 3.1 8B Instruct:
+
+```bash
+ollama pull llama3.1:8b-instruct-q4_0
+
+export AI_PROVIDER="ollama"
+export OLLAMA_BASE_URL="http://localhost:11434"
+export OLLAMA_MODEL="llama3.1:8b-instruct-q4_0"
+uvicorn api.main:app --reload --port 8001
+```
+
+Make sure the Ollama desktop app is running, or run `ollama serve` in a separate terminal.
+
+You can also use the generic model override:
+
+```bash
+export AI_MODEL="llama3.1:8b-instruct-q4_0"
+```
+
+### OpenAI provider
+
+To switch back to OpenAI:
+
+```bash
+export AI_PROVIDER="openai"
+export OPENAI_API_KEY="your-api-key"
+export OPENAI_MODEL="gpt-5.4-mini"
+uvicorn api.main:app --reload --port 8001
+```
+
+Main endpoints:
+
+- `GET /api/health`
+- `GET /api/schema`
+- `POST /api/sql`
+- `POST /api/chat`
+- `POST /api/report`
+
+The Agent exposes two internal tools to the model:
+
+- `get_schema`: returns SQLite tables, views, columns, business glossary, and join guidance
+- `run_sql_query`: executes read-only SQLite `SELECT` or `WITH` queries with a row limit
+
+`POST /api/chat` performs natural-language-to-SQL, executes the SQL, summarizes the result, and returns a chart recommendation. `POST /api/report` generates the slower business report separately, so the React page can show answer, SQL, rows, and chart first.
+
+## Deploy The AI Agent To Vercel
+
+This repo is configured for a single Vercel deployment that serves:
+
+- the React AI Agent page from `frontend/dist`
+- the FastAPI app through `api/index.py`
+- same-origin `/api/*` requests through `vercel.json` rewrites to `/api/index`
+
+### 1. Build the SQLite database
+
+Vercel cannot see your local ignored files. Build the SQLite database and commit the deployable DB file:
+
+```bash
+python src/load/load_to_sqlite.py \
+  --window-token 2024_01_to_2025_12 \
+  --forecast-year 2026
+
+git add data/processed/meat_market.db
+```
+
+The `.gitignore` keeps raw data ignored but allows `data/processed/meat_market.db`, which is small enough for this portfolio deployment. For a larger production system, move this data to a managed database instead of committing SQLite.
+
+### 2. Configure Vercel environment variables
+
+Set these variables in Vercel Project Settings:
+
+```text
+AI_PROVIDER=groq
+GROQ_API_KEY=your-groq-api-key
+GROQ_MODEL=llama-3.1-8b-instant
+GROQ_BASE_URL=https://api.groq.com/openai/v1
+CORS_ORIGINS=https://your-project.vercel.app
+```
+
+For Preview Deployments, add your preview domain to `CORS_ORIGINS`, or use a comma-separated list:
+
+```text
+CORS_ORIGINS=https://your-project.vercel.app,https://your-preview.vercel.app,http://localhost:5173,http://localhost:5273
+```
+
+### 3. Deploy from the repository root
+
+The root `vercel.json` handles the build:
+
+- `npm --prefix frontend ci`
+- `npm --prefix frontend run build`
+- output directory: `frontend/dist`
+- Python dependencies: `requirements.txt`
+- API function entry: `api/index.py`
+
+After deployment, verify:
+
+```text
+https://your-project.vercel.app/api/health
+```
+
+Expected provider fields:
+
+```json
+{
+  "provider": "groq",
+  "model": "llama-3.1-8b-instant",
+  "available": true
+}
+```
+
+## Run The React AI Agent Page
+
+In a separate terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Then open:
+
+```text
+http://localhost:5173
+```
+
+The Vite dev server proxies `/api/*` requests to `http://localhost:8001`.
+
 ## Power BI Blueprint
 
 The [powerbi/](powerbi/) folder contains:
@@ -225,10 +407,13 @@ http://localhost:8000
 ```text
 beef-lamb-market-dashboard/
   dashboard/                 static front-end and packaged report assets
+  frontend/                  React AI Agent query page
+  api/                       FastAPI app for the Agent layer
   data/raw/                  local raw ABS and DAFF release folders
   data/processed/            local cleaned and summary outputs
   reports/charts/            generated PNG report exports
   src/
+    agent/                   OpenAI orchestration and read-only SQL tools
     services/                API-ready report generation service layer
     transform/               source-specific cleaning logic
     load/                    database loaders for SQLite and DuckDB
@@ -237,7 +422,7 @@ beef-lamb-market-dashboard/
     export_dashboard_assets.py
     run_pipeline.py
     run_reporting_pipeline.py
-  sql/                       DuckDB schema, marts, and KPI query examples
+  sql/                       SQLite schema plus DuckDB marts and KPI examples
   data_model/                metric definitions and KPI semantics
   powerbi/                   Power BI project blueprint, DAX, and screenshots
   .github/workflows/         GitHub Pages deployment workflow

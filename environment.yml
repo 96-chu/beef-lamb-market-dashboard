@@ -29,6 +29,7 @@ dependencies:
   - duckdb
   - et_xmlfile=2.0.0
   - executing=2.2.1
+  - fastapi
   - greenlet=3.3.2
   - h11=0.16.0
   - html5lib=1.1
@@ -84,6 +85,7 @@ dependencies:
   - notebook-shim=0.2.4
   - numpy=2.4.4
   - numpy-base=2.4.4
+  - openai
   - openpyxl=3.1.5
   - openssl=3.6.2
   - overrides=7.7.0
@@ -137,6 +139,7 @@ dependencies:
   - typing_extensions=4.15.0
   - tzdata=2026a
   - urllib3=2.6.3
+  - uvicorn
   - wcwidth=0.2.14
   - webencodings=0.5.1
   - websocket-client=1.8.0
