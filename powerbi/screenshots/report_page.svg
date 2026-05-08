@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760">
+  <rect width="1280" height="760" fill="#10201c"/>
+  <text x="52" y="58" font-family="Arial" font-size="30" font-weight="700" fill="#f6f0df">Executive Overview</text>
+  <text x="52" y="90" font-family="Arial" font-size="16" fill="#c9d3ca">Beef and lamb market performance, destination signals, and forecast planning bands</text>
+
+  <g font-family="Arial">
+    <rect x="52" y="128" width="270" height="118" rx="8" fill="#182d27" stroke="#41544d"/>
+    <text x="76" y="164" font-size="14" fill="#d6c9ad">LATEST BEEF EXPORTS</text>
+    <text x="76" y="210" font-size="34" font-weight="700" fill="#f0b27a">144,573</text>
+    <text x="224" y="210" font-size="18" fill="#f6f0df">tonnes</text>
+
+    <rect x="352" y="128" width="270" height="118" rx="8" fill="#182d27" stroke="#41544d"/>
+    <text x="376" y="164" font-size="14" fill="#d6c9ad">LATEST LAMB EXPORTS</text>
+    <text x="376" y="210" font-size="34" font-weight="700" fill="#95b77a">27,033</text>
+    <text x="508" y="210" font-size="18" fill="#f6f0df">tonnes</text>
+
+    <rect x="652" y="128" width="270" height="118" rx="8" fill="#182d27" stroke="#41544d"/>
+    <text x="676" y="164" font-size="14" fill="#d6c9ad">EXPORT SHARE</text>
+    <text x="676" y="210" font-size="34" font-weight="700" fill="#f6f0df">57.6%</text>
+
+    <rect x="952" y="128" width="270" height="118" rx="8" fill="#182d27" stroke="#41544d"/>
+    <text x="976" y="164" font-size="14" fill="#d6c9ad">FORECAST YEAR</text>
+    <text x="976" y="210" font-size="34" font-weight="700" fill="#f6f0df">2026</text>
+
+    <rect x="52" y="286" width="575" height="260" rx="8" fill="#142722" stroke="#41544d"/>
+    <text x="82" y="326" font-size="20" font-weight="700" fill="#f6f0df">Quarterly Exports vs Production</text>
+    <polyline points="96,485 175,454 254,432 333,414 412,395 491,360 575,342" fill="none" stroke="#f0b27a" stroke-width="5"/>
+    <polyline points="96,500 175,489 254,476 333,480 412,452 491,448 575,468" fill="none" stroke="#95b77a" stroke-width="5"/>
+    <line x1="96" y1="506" x2="584" y2="506" stroke="#6f7b74"/>
+    <line x1="96" y1="356" x2="96" y2="506" stroke="#6f7b74"/>
+
+    <rect x="655" y="286" width="567" height="260" rx="8" fill="#142722" stroke="#41544d"/>
+    <text x="685" y="326" font-size="20" font-weight="700" fill="#f6f0df">Destination Growth Signals</text>
+    <rect x="690" y="360" width="430" height="24" fill="#f0b27a"/>
+    <rect x="690" y="404" width="360" height="24" fill="#f0b27a"/>
+    <rect x="690" y="448" width="302" height="24" fill="#95b77a"/>
+    <rect x="690" y="492" width="250" height="24" fill="#95b77a"/>
+    <text x="1135" y="380" font-size="14" fill="#f6f0df">USA East</text>
+    <text x="1065" y="424" font-size="14" fill="#f6f0df">Japan</text>
+    <text x="1008" y="468" font-size="14" fill="#f6f0df">China</text>
+    <text x="956" y="512" font-size="14" fill="#f6f0df">South Korea</text>
+
+    <rect x="52" y="586" width="1170" height="110" rx="8" fill="#182d27" stroke="#41544d"/>
+    <text x="82" y="624" font-size="20" font-weight="700" fill="#f6f0df">Business Signals</text>
+    <text x="82" y="660" font-size="16" fill="#c9d3ca">Growth markets should be reviewed against production capacity, destination concentration, and climate-exposed supply conditions.</text>
+  </g>
+</svg>
+

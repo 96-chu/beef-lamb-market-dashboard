@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "artifacts": [
+    {
+      "report": {
+        "path": "BeefLambMarketDashboard.Report"
+      }
+    },
+    {
+      "semanticModel": {
+        "path": "BeefLambMarketDashboard.SemanticModel"
+      }
+    }
+  ],
+  "settings": {
+    "documentation": "Use this PBIP blueprint with the DuckDB star schema or exported CSV marts to recreate the Power BI Desktop report."
+  }
+}
+

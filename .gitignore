@@ -3,9 +3,11 @@ __pycache__/
 .ipynb_checkpoints/
 .env
 .venv/
+node_modules/
+frontend/dist/
 .DS_Store
-data/
-!/dashboard/data/
-!/dashboard/data/**
+data/*
+!data/processed/
+data/processed/*
+!data/processed/meat_market.db
 reports/
-data/processed/*.db
