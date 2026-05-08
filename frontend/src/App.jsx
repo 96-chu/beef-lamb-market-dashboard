@@ -259,8 +259,8 @@ function AgentProgress({ loading, progressValue, result, mode, phase }) {
     ? phase === "report"
       ? "Report is being drafted"
       : mode === "agent"
-      ? "Agent is working"
-      : "SQL tool is running"
+        ? "Agent is working"
+        : "SQL tool is running"
     : "Process trace"
 
   return (
@@ -501,6 +501,38 @@ function SchemaPanel({ schema }) {
   )
 }
 
+function DataSourcePanel() {
+  return (
+    <section className="data-source-panel">
+      <div className="panel-heading">
+        <Database size={18} />
+        <div>
+          <div className="panel-label">Data Source</div>
+          <h2>ABS production and DAFF export records</h2>
+        </div>
+      </div>
+      <div className="source-grid">
+        <div>
+          <strong>Exports</strong>
+          <span>DAFF Monthly 57 Destination Reports, destination-level monthly beef and lamb export flows.</span>
+        </div>
+        <div>
+          <strong>Production</strong>
+          <span>ABS Livestock Products, Australia, quarterly slaughter and meat production series.</span>
+        </div>
+        <div>
+          <strong>Coverage</strong>
+          <span>Exports cover Jan 2020-Dec 2025. Production covers Mar 2020-Dec 2025.</span>
+        </div>
+        <div>
+          <strong>Analysis layer</strong>
+          <span>Cleaned records are normalized into SQLite views for KPIs, destinations, forecasts, and market signals.</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function QuestionComposer({
   activeMode,
   loading,
@@ -515,6 +547,26 @@ function QuestionComposer({
     <section className="composer-shell">
       {activeMode === "agent" ? (
         <form className="composer-box" onSubmit={submitQuestion}>
+          <div className="mode-tabs">
+            <button
+              className={activeMode === "agent" ? "is-active" : ""}
+              disabled={loading}
+              type="button"
+              onClick={() => setActiveMode("agent")}
+            >
+              <Sparkles size={16} />
+              Natural Language
+            </button>
+            <button
+              className={activeMode === "sql" ? "is-active" : ""}
+              disabled={loading}
+              type="button"
+              onClick={() => setActiveMode("sql")}
+            >
+              <Database size={16} />
+              SQL Tool
+            </button>
+          </div>
           <label htmlFor="question-input">Ask the market database</label>
           <div className="composer-row">
             <textarea
@@ -780,26 +832,7 @@ export default function App() {
 
       <section className="workspace">
         <div className="main-panel" aria-busy={loading}>
-          <div className="mode-tabs">
-            <button
-              className={activeMode === "agent" ? "is-active" : ""}
-              disabled={loading}
-              type="button"
-              onClick={() => setActiveMode("agent")}
-            >
-              <Sparkles size={16} />
-              Natural Language
-            </button>
-            <button
-              className={activeMode === "sql" ? "is-active" : ""}
-              disabled={loading}
-              type="button"
-              onClick={() => setActiveMode("sql")}
-            >
-              <Database size={16} />
-              SQL Tool
-            </button>
-          </div>
+          <DataSourcePanel />
 
           {historyItems.length > 0 && (
             <section className="history-panel">

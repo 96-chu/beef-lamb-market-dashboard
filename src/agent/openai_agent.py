@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -220,13 +221,20 @@ def build_default_answer(query_result: dict[str, Any] | None) -> str:
     if {"destination", "tonnes"}.issubset(column_set):
         product = str(rows[0].get("product", "market")).title()
         year = rows[0].get("year")
+        start_year = rows[0].get("start_year")
+        end_year = rows[0].get("end_year")
+        period_text = ""
+        if year:
+            period_text = f" in {year}"
+        elif start_year and end_year:
+            period_text = f" from {start_year} to {end_year}"
         leaders = [
             f"{row.get('destination')} ({format_measure(row.get('tonnes'), 'tonnes')})"
             for row in rows[:5]
         ]
         return (
             f"The leading {product.lower()} export destinations"
-            + (f" in {year}" if year else "")
+            + period_text
             + " were "
             + ", ".join(leaders)
             + f". The result returned {query_result.get('row_count', len(rows))} ranked destinations."
@@ -355,6 +363,11 @@ def latest_kpi_sql_for_question(question: str) -> str | None:
     return None
 
 
+def extract_years(question: str) -> list[int]:
+    years = [int(year) for year in re.findall(r"\b(20\d{2})\b", question)]
+    return sorted(set(years))
+
+
 def shortcut_sql_for_question(question: str) -> str | None:
     latest_sql = latest_kpi_sql_for_question(question)
     if latest_sql:
@@ -368,7 +381,20 @@ def shortcut_sql_for_question(question: str) -> str | None:
         and ("beef" in text or "lamb" in text)
     ):
         product = "lamb" if "lamb" in text and "beef" not in text else "beef"
-        year = "2025" if "2025" in text else "2024" if "2024" in text else None
+        years = extract_years(question)
+        if len(years) >= 2:
+            start_year = min(years)
+            end_year = max(years)
+            return (
+                "SELECT product, destination, MIN(year) AS start_year, "
+                "MAX(year) AS end_year, SUM(tonnes) AS tonnes "
+                "FROM fact_exports "
+                f"WHERE product = '{product}' AND year BETWEEN {start_year} AND {end_year} "
+                "GROUP BY product, destination "
+                "ORDER BY tonnes DESC "
+                "LIMIT 10"
+            )
+        year = years[0] if len(years) == 1 else None
         where = [f"product = '{product}'"]
         if year:
             where.append(f"year = {year}")
@@ -542,9 +568,14 @@ def build_report_markdown(
                 product = str(row.get("product", "Market")).title()
                 rank = row.get("destination_rank")
                 rank_text = f"rank {rank}, " if rank is not None else ""
+                period = row.get("year") or (
+                    f"{row.get('start_year')} to {row.get('end_year')}"
+                    if row.get("start_year") and row.get("end_year")
+                    else "the selected period"
+                )
                 lines.append(
                     f"- **{product} destination - {row.get('destination')}**: "
-                    f"{rank_text}{format_measure(row.get('tonnes'), 'tonnes')} in {row.get('year', 'the selected year')}."
+                    f"{rank_text}{format_measure(row.get('tonnes'), 'tonnes')} in {period}."
                 )
                 continue
 
@@ -719,7 +750,7 @@ def answer_question(
                 )
             )
 
-        if provider.name == "ollama" and last_query_result:
+        if provider.name in {"ollama", "groq"} and last_query_result:
             answer = build_default_answer(last_query_result)
             return build_agent_response(
                 question=question,

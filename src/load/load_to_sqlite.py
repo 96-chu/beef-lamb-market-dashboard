@@ -12,7 +12,7 @@ PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 SQL_DIR = PROJECT_ROOT / "sql"
 SCHEMA_PATH = SQL_DIR / "schema.sql"
 DEFAULT_DB_PATH = PROCESSED_DIR / "meat_market.db"
-DEFAULT_WINDOW_TOKEN = "2024_01_to_2025_12"
+DEFAULT_WINDOW_TOKEN = "2020_01_to_2025_12"
 DEFAULT_FORECAST_YEAR = 2026
 
 PRODUCT_NAME_MAP = {
@@ -431,7 +431,7 @@ def main() -> None:
         "--window-token",
         type=str,
         default=DEFAULT_WINDOW_TOKEN,
-        help="File-name token such as 2024_01_to_2025_12.",
+        help="File-name token such as 2020_01_to_2025_12.",
     )
     parser.add_argument(
         "--forecast-year",

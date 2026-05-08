@@ -7,10 +7,20 @@ from typing import Any, Protocol
 
 import httpx
 
+try:
+    from dotenv import load_dotenv
+except ImportError:  # pragma: no cover - optional local convenience.
+    load_dotenv = None
+
+if load_dotenv:
+    load_dotenv(".env.local")
+    load_dotenv()
+
 
 DEFAULT_PROVIDER = "groq"
 DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant"
 DEFAULT_GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+DEFAULT_GROQ_MAX_TOKENS = 256
 DEFAULT_OPENAI_MODEL = "gpt-5.4-mini"
 DEFAULT_OLLAMA_MODEL = "llama3.1:8b-instruct-q4_0"
 DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434"
@@ -228,11 +238,13 @@ class OpenAICompatibleChatConversation:
         system_prompt: str,
         question: str,
         provider_label: str,
+        max_tokens: int | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.model = model
         self.provider_label = provider_label
+        self.max_tokens = max_tokens
         self.messages: list[dict[str, Any]] = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": question},
@@ -263,6 +275,11 @@ class OpenAICompatibleChatConversation:
                     "tools": chat_completion_tools(),
                     "tool_choice": "auto",
                     "temperature": 1e-8,
+                    **(
+                        {"max_completion_tokens": self.max_tokens}
+                        if self.max_tokens
+                        else {}
+                    ),
                 },
                 timeout=120,
             )
@@ -305,6 +322,11 @@ class GroqProvider:
         self.base_url = os.getenv("GROQ_BASE_URL", DEFAULT_GROQ_BASE_URL).rstrip("/")
         self.model = os.getenv("AI_MODEL") or os.getenv("GROQ_MODEL") or DEFAULT_GROQ_MODEL
         self.api_key = os.getenv("GROQ_API_KEY")
+        self.max_tokens = int(
+            os.getenv("AI_MAX_TOKENS")
+            or os.getenv("GROQ_MAX_TOKENS")
+            or DEFAULT_GROQ_MAX_TOKENS
+        )
 
     def start(self, system_prompt: str, question: str) -> ProviderConversation:
         if not self.api_key:
@@ -316,6 +338,7 @@ class GroqProvider:
             system_prompt=system_prompt,
             question=question,
             provider_label="Groq",
+            max_tokens=self.max_tokens,
         )
 
     def status(self) -> dict[str, Any]:
@@ -350,6 +373,7 @@ class GroqProvider:
             "provider": self.name,
             "model": self.model,
             "base_url": self.base_url,
+            "max_tokens": self.max_tokens,
             "configured": configured,
             "available": available,
             "detail": detail,
